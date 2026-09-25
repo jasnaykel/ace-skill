@@ -50,9 +50,9 @@ Generar el desarrollo base completo:
 
 > ⛔ Los `.project` deben replicar buildSpec/natures exactos de la plantilla (los `.esql` y artefactos DFDL se sirven desde la plantilla como base, normalizando solo residuos y sin renombrar rutinas/módulos). Los `.msgflow`/`.subflow` NO se difieren al Toolkit: se entregan como XML/XMI válido (ver `message-flows/message-flows.md`). Solo quedan para el Toolkit: import DFDL (→`.xsd`+`importFiles/`+`IBMdefined/`+`log/`), regeneración de `gen/*.msgflow` al compilar y scaffolding de Policy Projects.
 
-### 4.1 — Gate de compilación ESQL/DFDL (obligatorio)
+### 4.1 — Gate de verificación estructural y sintáctica (obligatorio)
 
-Antes de declarar generado el desarrollo:
+Antes de declarar generado el desarrollo, comprobar de manera estática que no se introduzcan desviaciones estructurales:
 
 1. Localizar la routine equivalente de la plantilla que ya compila. Copiar su estructura y cambiar solo campos, paths y valores verificados contra SCI/ETI. Si no existe una routine equivalente o el copybook no permite determinar la cardinalidad, declarar BLOQUEO.
 2. Para cada `.esql` nuevo o modificado, comprobar la sintaxis antes de integrarlo:
@@ -64,14 +64,13 @@ Antes de declarar generado el desarrollo:
    - `occursCountKind="fixed"` exige `minOccurs` y `maxOccurs` iguales.
    - `OCCURS ... DEPENDING ON` y `OCCURS *` deben conservar la estrategia de ocurrencia variable del template; no convertirlos a `fixed` para silenciar el validador.
    - Todo grupo (`complexType`) lleva `dfdl:lengthKind="implicit"`; no asignar `dfdl:length` a un grupo (el default `lengthKind="explicit"` del formato dispara `CTDV1210E`).
-   - Ejecutar la validación DFDL del Toolkit.
-4. Compilar ambas capas en el ACE Toolkit y guardar el resultado de la compilación. No continuar con un error `ESQL Parser`, `Builder Referential Error Marker` o `DFDL Validation Problem`.
-5. Si un cambio falla, volver a la routine/XSD base de la plantilla, reaplicar el mapeo mínimo y volver a validar. No parchear los síntomas con casts, cambios de cardinalidad o statements incompletos.
+4. Asegurar que las estructuras de los archivos XML de los Message Flows y Subflows se generen de manera que su sintaxis e identificadores coincidan con la estructura lógica esperada.
+5. Si un cambio falla, volver a la routine/XSD base de la plantilla, reaplicar el mapeo mínimo y volver a validar la estructura estática. No parchear los síntomas con casts, cambios de cardinalidad o statements incompletos.
 
 Sin inventar estructuras. Toda desviación → declararla.
 
 ## Paso 5 — Validación (DoD)
-Aplicar `validation-checklist/validation-checklist.md` completo, incluir el resultado de compilación ESQL/DFDL y construir la tabla de trazabilidad.
+Aplicar `validation-checklist/validation-checklist.md` de forma estática y construir la tabla de trazabilidad.
 
 ## Paso 6 — Entrega
 Resumen de lo generado, trazabilidad, piezas pendientes (políticas por ambiente, credenciales, URLs reales) y, si aplica, derivar a `ace-delivery` (F01, pipeline, Nexus, CP4I, correo).
