@@ -4,12 +4,20 @@
 Definir cómo usar el repositorio plantilla para generar desarrollos, qué contiene y cómo normalizarlo antes de reutilizarlo.
 
 ## Selección de plantilla
-El agente debe seleccionar exactamente una plantilla según el dominio del desarrollo. La rama y el subdirectorio deben permanecer aislados; nunca combinar archivos entre `IBS` y `HUB`.
+El agente debe seleccionar exactamente una plantilla según el encabezado del `ETI.md`. La rama y el subdirectorio deben permanecer aislados; nunca combinar archivos entre `IBS` y `HUB`.
 
 | Dominio | URL | Rama | Subdirectorio de plantilla |
 |---|---|---|---|
-| `IBS` | `https://github.com/Karinadr/plantillas-AI/tree/IBS/app213-terdep-pay-exec-s-ace` | `IBS` | `app213-terdep-pay-exec-s-ace` |
-| `HUB` | `https://github.com/Karinadr/plantillas-AI/tree/HUB/app213-terdep-pay-exec-s-ace` | `HUB` | `app213-terdep-pay-exec-s-ace` |
+| `IBS` | `https://github.com/Karinadr/plantillas-AI/tree/IBS/app213-payexe-prorev-core-upda-s-ops-ace` | `IBS` | `app213-payexe-prorev-core-upda-s-ops-ace` |
+| `HUB` | `https://github.com/Karinadr/plantillas-AI/tree/HUB/app213-payexe-prorev-hub-upda-s-ops-ace` | `HUB` | `app213-payexe-prorev-hub-upda-s-ops-ace` |
+
+### Encabezados selectores del ETI
+| Encabezado Markdown del ETI | Plantilla que debe utilizarse |
+|---|---|
+| `# Componente IBS` | Fila `IBS` de la matriz anterior |
+| `# Componente API REST` | Fila `HUB` de la matriz anterior |
+
+No seleccionar por semejanza semántica ni por datos encontrados en otra sección. Si el encabezado no coincide exactamente después de normalizar espacios, detener el flujo con **BLOQUEO**.
 
 Para `IBS`, el servicio de referencia es el BUS atómico que consume el RPG `RE0058RI` mediante Backend Centralizado. Para `HUB`, no asumir contratos, backend, códigos ni convenciones IBS: leer el contenido real de la plantilla `HUB`.
 

@@ -30,12 +30,12 @@ Ciclo de desarrollo de servicios IBM ACE desde la generación de plantilla hasta
 ## FASE 1 — Generación de plantilla seleccionada
 
 ### Fuente canónica
-La plantilla no se obtiene desde `Z:\Java` ni desde una copia local preexistente. Seleccionar `IBS` o `HUB` según el servicio y clonar la rama correspondiente. Para ambos dominios, la plantilla está en `app213-terdep-pay-exec-s-ace`:
+La plantilla no se obtiene desde `Z:\Java` ni desde una copia local preexistente. Leer primero el encabezado del `ETI.md`: `# Componente IBS` selecciona `IBS` y `app213-payexe-prorev-core-upda-s-ops-ace`; `# Componente API REST` selecciona `HUB` y `app213-payexe-prorev-hub-upda-s-ops-ace`. Luego clonar la rama correspondiente:
 
 ```cmd
 git clone --branch <BRANCH> --single-branch https://github.com/Karinadr/plantillas-AI.git <TEMPLATE_REPO_ROOT>
 git -C <TEMPLATE_REPO_ROOT> ls-tree -r --name-only HEAD
-<TEMPLATE_ROOT> = <TEMPLATE_REPO_ROOT>\app213-terdep-pay-exec-s-ace
+<TEMPLATE_ROOT> = <TEMPLATE_REPO_ROOT>\<SUBDIRECTORIO_SELECCIONADO>
 ```
 
 Usar únicamente `<TEMPLATE_ROOT>` como fuente de estructura y archivos base. Confirmar el dominio, rama, subdirectorio y commit antes de generar y registrar la versión utilizada. Las rutas locales solo pueden ser el destino temporal del clon, nunca una fuente de verdad distinta.

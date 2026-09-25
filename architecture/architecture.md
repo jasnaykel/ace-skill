@@ -43,5 +43,5 @@ Consumidores: APP069 (Recaudaciones), APP061 (Branch), APP204/205 (BxI PN/PJ)
 - Gestión de credenciales físicas del banco (viven en WebSEAL/políticas por ambiente).
 
 ## Referencias
-- Plantillas canónicas: dominio `IBS` en `https://github.com/Karinadr/plantillas-AI/tree/IBS/app213-terdep-pay-exec-s-ace` y dominio `HUB` en `https://github.com/Karinadr/plantillas-AI/tree/HUB/app213-terdep-pay-exec-s-ace`; analizar solo la plantilla seleccionada antes de generar.
+- Plantillas canónicas: dominio `IBS` en `https://github.com/Karinadr/plantillas-AI/tree/IBS/app213-payexe-prorev-core-upda-s-ops-ace` y dominio `HUB` en `https://github.com/Karinadr/plantillas-AI/tree/HUB/app213-payexe-prorev-hub-upda-s-ops-ace`; analizar solo la plantilla seleccionada antes de generar.
 - Informe del Prompt Maestro: `Informe_Ejecucion_Prompt_Maestro_IBM_ACE.md` (workspace `Documents\AI`), sección 3 y 5.
