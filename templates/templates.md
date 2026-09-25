@@ -1,27 +1,34 @@
-# templates — Plantilla corporativa (fuente de verdad estructural)
+# templates — Plantillas corporativas (fuente de verdad estructural)
 
 ## Propósito
 Definir cómo usar el repositorio plantilla para generar desarrollos, qué contiene y cómo normalizarlo antes de reutilizarlo.
 
-## Repositorio plantilla canónico
-- **URL de Repositorio:** `https://github.com/Karinadr/plantillas-AI/tree/IBS`
-- **Rama:** `IBS`
-- **Servicio de referencia:** `153_BUS_PayExe_ProRev_Core_Upda_S` — BUS atómico que consume el RPG `RE0058RI` (IBS) vía Backend Centralizado (`IN2100RI`).
-- **Uso:** El agente debe clonar este repositorio y rama de forma local en un directorio temporal para usarlo como la única fuente de verdad y estructura.
+## Selección de plantilla
+El agente debe seleccionar exactamente una plantilla según el dominio del desarrollo. La rama y el subdirectorio deben permanecer aislados; nunca combinar archivos entre `IBS` y `HUB`.
+
+| Dominio | URL | Rama | Subdirectorio de plantilla |
+|---|---|---|---|
+| `IBS` | `https://github.com/Karinadr/plantillas-AI/tree/IBS/app213-terdep-pay-exec-s-ace` | `IBS` | `app213-terdep-pay-exec-s-ace` |
+| `HUB` | `https://github.com/Karinadr/plantillas-AI/tree/HUB/app213-terdep-pay-exec-s-ace` | `HUB` | `app213-terdep-pay-exec-s-ace` |
+
+Para `IBS`, el servicio de referencia es el BUS atómico que consume el RPG `RE0058RI` mediante Backend Centralizado. Para `HUB`, no asumir contratos, backend, códigos ni convenciones IBS: leer el contenido real de la plantilla `HUB`.
 
 ## Resolución de Plantilla (Git-First)
 Antes de iniciar la generación:
-1. Clonar de forma local la plantilla mediante:
+1. Determinar el dominio desde la solicitud, SCI/ETI o instrucción explícita del usuario. Si no se puede determinar, solicitar aclaración antes de generar.
+2. Clonar el repositorio en una carpeta temporal del dominio mediante:
    ```bash
-   git clone --branch IBS --single-branch https://github.com/Karinadr/plantillas-AI.git <TEMPLATE_ROOT>
-   git -C <TEMPLATE_ROOT> rev-parse --verify HEAD
-   git -C <TEMPLATE_ROOT> ls-tree -r --name-only HEAD
+   git clone --branch <BRANCH> --single-branch https://github.com/Karinadr/plantillas-AI.git <TEMPLATE_REPO_ROOT>
+   git -C <TEMPLATE_REPO_ROOT> rev-parse --verify HEAD
+   git -C <TEMPLATE_REPO_ROOT> ls-tree -r --name-only HEAD
+   git -C <TEMPLATE_REPO_ROOT> ls-tree -d --name-only HEAD -- <SUBDIRECTORIO_SELECCIONADO>
    ```
-2. Usar `<TEMPLATE_ROOT>` como el directorio de referencia y analizar su árbol real antes de generar.
-3. Registrar el commit utilizado. Todos los archivos y estructuras generados deben basarse con un 100% de fidelidad en este repositorio clonado. No inventar nombres de carpetas, de subflows ni de convenciones. No buscar archivos en otros workspaces o rutas fuera del clon de esta plantilla.
+3. Resolver `<TEMPLATE_ROOT>` como `<TEMPLATE_REPO_ROOT>/<SUBDIRECTORIO_SELECCIONADO>` y analizar tanto el árbol del repositorio como el subdirectorio real.
+4. Registrar dominio, URL, rama, subdirectorio y commit utilizado. Todos los archivos y estructuras generados deben basarse con un 100% de fidelidad en `<TEMPLATE_ROOT>`. No inventar nombres de carpetas, de subflows ni de convenciones. No buscar archivos en otros workspaces o rutas fuera del clon de la plantilla seleccionada.
+5. Si el comando de verificación no encuentra el subdirectorio seleccionado, declarar **BLOQUEO** y solicitar que se publique la plantilla en esa rama. No sustituirla automáticamente por la plantilla histórica de IBS ni por archivos de otra rama.
 
 ## Repositorio técnico complementario
-La plantilla IBS se complementa con las guías técnicas de `ace-flowpilot`:
+La plantilla seleccionada se complementa con las guías técnicas de `ace-flowpilot`:
 - **URL:** `https://github.com/ot4i/ace-flowpilot/tree/main`
 - **Rama:** `main`
 - **Clonado:** `git clone --branch main --single-branch https://github.com/ot4i/ace-flowpilot.git <FLOWPILOT_ROOT>`

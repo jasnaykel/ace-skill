@@ -6,6 +6,7 @@ Casos de referencia verificados que la skill puede citar como ejemplos de patron
 ## Ejemplo principal: `BUS_Reversar_Pago_IBS` (153)
 - **SCIENTÍFICO:** SCI (`SCI_SRV_ReversarPagoIBS.md`) + ETI (`ETI_153_BUS_Reversar_Pago_IBS.md`). La consistencia SCI↔ETI se valida fuera de esta skill mediante el script externo.
 - **Implementación real (plantilla):** rama `IBS` del repositorio `https://github.com/Karinadr/plantillas-AI/tree/IBS`.
+- **Plantilla HUB:** rama `HUB`, subdirectorio `app213-terdep-pay-exec-s-ace`; no reutilizar automáticamente contratos ni lógica específica de IBS.
 
 ### Datos duros extraídos
 | Aspecto | Valor |

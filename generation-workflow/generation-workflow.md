@@ -6,25 +6,29 @@ Procedimiento operativo para que la IA genere **desarrollo base** de un servicio
 ## Insumos obligatorios
 - `SCI.md` — Formato de Solicitud de Servicios (funcional): campos, reglas de negocio, consumidores, productor.
 - `ETI.md` — Especificación Técnica de Integración: mapeo de campos, transformaciones, contratos, endpoints, manejo de errores.
-- Plantilla IBS remota: `https://github.com/Karinadr/plantillas-AI/tree/IBS` (ver `templates/templates.md`).
+- Plantilla remota seleccionada por dominio `IBS` o `HUB` (ver `templates/templates.md`).
 - Skills de soporte: módulos `service-dev`, `logging`, `framework-setup`, `delivery` de esta skill.
 
 > ⛔ Si falta un insumo → **BLOQUEO**. No continuar.
 
-## Paso 0 — Resolver y analizar la plantilla IBS
+## Paso 0 — Resolver y analizar la plantilla seleccionada
 Antes de leer o generar artefactos:
 
+Determinar el dominio del servicio. Usar `IBS` para la plantilla de la rama `IBS` y `HUB` para la plantilla de la rama `HUB`. En ambos casos el subdirectorio seleccionado es `app213-terdep-pay-exec-s-ace`; no mezclar archivos entre ramas.
+
 ```bash
-git clone --branch IBS --single-branch https://github.com/Karinadr/plantillas-AI.git <TEMPLATE_ROOT>
-git -C <TEMPLATE_ROOT> rev-parse --verify HEAD
-git -C <TEMPLATE_ROOT> ls-tree -r --name-only HEAD
+git clone --branch <BRANCH> --single-branch https://github.com/Karinadr/plantillas-AI.git <TEMPLATE_REPO_ROOT>
+git -C <TEMPLATE_REPO_ROOT> rev-parse --verify HEAD
+git -C <TEMPLATE_REPO_ROOT> ls-tree -r --name-only HEAD
+git -C <TEMPLATE_REPO_ROOT> ls-tree -d --name-only HEAD -- app213-terdep-pay-exec-s-ace
+<TEMPLATE_ROOT> = <TEMPLATE_REPO_ROOT>/app213-terdep-pay-exec-s-ace
 
 git clone --branch main --single-branch https://github.com/ot4i/ace-flowpilot.git <FLOWPILOT_ROOT>
 git -C <FLOWPILOT_ROOT> rev-parse --verify HEAD
 git -C <FLOWPILOT_ROOT> ls-tree -r --name-only HEAD
 ```
 
-Analizar el árbol de `<TEMPLATE_ROOT>` para localizar las capas `application`, `service`, configuración, `ci` y `test`. Analizar también `<FLOWPILOT_ROOT>` para localizar las guías reales aplicables, por ejemplo `skills/shared`, tipos de nodos, reglas de message flows, subflows y proyectos. Leer los archivos equivalentes antes de copiar o renombrar cualquier artefacto. Registrar URL, rama, commit y ruta temporal de ambos repositorios en el reporte. Si alguno no está disponible, declarar **BLOQUEO** para la parte dependiente y no usar una copia local alternativa.
+Analizar el árbol del repositorio y de `<TEMPLATE_ROOT>` para localizar las capas `application`, `service`, configuración, `ci` y `test`. Si el subdirectorio `app213-terdep-pay-exec-s-ace` no existe en la rama seleccionada, declarar **BLOQUEO** y no usar una plantilla de otra rama. Analizar también `<FLOWPILOT_ROOT>` para localizar las guías reales aplicables, por ejemplo `skills/shared`, tipos de nodos, reglas de message flows, subflows y proyectos. Leer los archivos equivalentes antes de copiar o renombrar cualquier artefacto. Registrar dominio, URL, rama, subdirectorio, commit y ruta temporal de ambos repositorios en el reporte. Si alguno no está disponible, declarar **BLOQUEO** para la parte dependiente y no usar una copia local alternativa.
 
 ## Paso 1 — Lectura y análisis
 Leer ambos documentos en su totalidad. Extraer en tablas:

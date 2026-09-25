@@ -27,17 +27,18 @@ Ciclo de desarrollo de servicios IBM ACE desde la generación de plantilla hasta
 
 ---
 
-## FASE 1 — Generación de plantilla IBS
+## FASE 1 — Generación de plantilla seleccionada
 
 ### Fuente canónica
-Para desarrollo IBS, la plantilla no se obtiene desde `Z:\Java` ni desde una copia local preexistente. Clonar y analizar siempre la rama `IBS`:
+La plantilla no se obtiene desde `Z:\Java` ni desde una copia local preexistente. Seleccionar `IBS` o `HUB` según el servicio y clonar la rama correspondiente. Para ambos dominios, la plantilla está en `app213-terdep-pay-exec-s-ace`:
 
 ```cmd
-git clone --branch IBS --single-branch https://github.com/Karinadr/plantillas-AI.git <TEMPLATE_ROOT>
-git -C <TEMPLATE_ROOT> ls-tree -r --name-only HEAD
+git clone --branch <BRANCH> --single-branch https://github.com/Karinadr/plantillas-AI.git <TEMPLATE_REPO_ROOT>
+git -C <TEMPLATE_REPO_ROOT> ls-tree -r --name-only HEAD
+<TEMPLATE_ROOT> = <TEMPLATE_REPO_ROOT>\app213-terdep-pay-exec-s-ace
 ```
 
-Usar `<TEMPLATE_ROOT>` como fuente de estructura y archivos base. Confirmar el commit antes de generar y registrar la versión utilizada. Las rutas locales solo pueden ser el destino temporal del clon, nunca una fuente de verdad distinta.
+Usar únicamente `<TEMPLATE_ROOT>` como fuente de estructura y archivos base. Confirmar el dominio, rama, subdirectorio y commit antes de generar y registrar la versión utilizada. Las rutas locales solo pueden ser el destino temporal del clon, nunca una fuente de verdad distinta.
 
 ### Opción A: Techzone (recomendada)
 **Paso 1 — Completar el Excel *Template ACE*:**
@@ -59,7 +60,7 @@ Body: form-data → adjuntar el archivo Excel
 Descargar el ZIP → descomprimir → importar en Toolkit.
 
 ### Opción B: CreatorApp legado
-No usar esta opción para desarrollo IBS. Solo aplica si el usuario solicita explícitamente ejecutar CreatorApp local para una generación histórica; en ese caso consultar la configuración de `framework-setup/framework-setup.md`.
+No usar esta opción para desarrollo IBS o HUB. Solo aplica si el usuario solicita explícitamente ejecutar CreatorApp local para una generación histórica; en ese caso consultar la configuración de `framework-setup/framework-setup.md`.
 
 ---
 
