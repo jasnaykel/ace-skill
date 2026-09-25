@@ -80,7 +80,9 @@ En el Toolkit:
 
 ---
 
-## FASE 6 — Preparar carpetas para CreatorApp (generación local)
+## FASE 6 — CreatorApp legado (opcional)
+Esta fase no es necesaria para generar servicios IBS. La fuente canónica IBS es el repositorio remoto `https://github.com/Karinadr/plantillas-AI/tree/IBS`, que debe clonarse y analizarse según `templates/templates.md`. Solo preparar CreatorApp si se solicita explícitamente una generación histórica local.
+
 Estructura en `Z:\Java\`:
 ```
 Z:\Java\

@@ -5,7 +5,7 @@ Casos de referencia verificados que la skill puede citar como ejemplos de patron
 
 ## Ejemplo principal: `BUS_Reversar_Pago_IBS` (153)
 - **SCIENTÍFICO:** SCI (`SCI_SRV_ReversarPagoIBS.md`) + ETI (`ETI_153_BUS_Reversar_Pago_IBS.md`); ver `Reporte_Consistencia_SCI_ETI_153_BUS_Reversar_Pago_IBS.md`.
-- **Implementación real (plantilla):** repo `app213-payexe-prorev-core-upda-s-ops-ace`.
+- **Implementación real (plantilla):** rama `IBS` del repositorio `https://github.com/Karinadr/plantillas-AI/tree/IBS`.
 
 ### Datos duros extraídos
 | Aspecto | Valor |

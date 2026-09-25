@@ -27,7 +27,17 @@ Ciclo de desarrollo de servicios IBM ACE desde la generación de plantilla hasta
 
 ---
 
-## FASE 1 — Generación de plantilla
+## FASE 1 — Generación de plantilla IBS
+
+### Fuente canónica
+Para desarrollo IBS, la plantilla no se obtiene desde `Z:\Java` ni desde una copia local preexistente. Clonar y analizar siempre la rama `IBS`:
+
+```cmd
+git clone --branch IBS --single-branch https://github.com/Karinadr/plantillas-AI.git <TEMPLATE_ROOT>
+git -C <TEMPLATE_ROOT> ls-tree -r --name-only HEAD
+```
+
+Usar `<TEMPLATE_ROOT>` como fuente de estructura y archivos base. Confirmar el commit antes de generar y registrar la versión utilizada. Las rutas locales solo pueden ser el destino temporal del clon, nunca una fuente de verdad distinta.
 
 ### Opción A: Techzone (recomendada)
 **Paso 1 — Completar el Excel *Template ACE*:**
@@ -48,16 +58,8 @@ Body: form-data → adjuntar el archivo Excel
 ```
 Descargar el ZIP → descomprimir → importar en Toolkit.
 
-### Opción B: Local (CreatorApp en STS)
-`Application.properties`:
-```properties
-file.base-path=Z://Java//
-file.template-path=Z://Java//template
-file.document-template=Z://Java//templates//docs//
-file.app.template-path=Z://Java//app//
-```
-- Copiar `creatorApp-java\src\main\resources\templates\template_api_xxxx` → `Z:\Java\app\`
-- Copiar `creatorApp-java\src\main\resources\templates\docs\F01` → `Z:\Java\templates\docs\F01`
+### Opción B: CreatorApp legado
+No usar esta opción para desarrollo IBS. Solo aplica si el usuario solicita explícitamente ejecutar CreatorApp local para una generación histórica; en ese caso consultar la configuración de `framework-setup/framework-setup.md`.
 
 ---
 

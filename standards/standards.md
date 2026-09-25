@@ -50,4 +50,4 @@ Path canónico: `v1.0/s/<servicedomain>/<controlrecord>/<subqualifier>/<actionte
 
 ## Referencias
 - Detalle: `Documentacion_Skills_IBM_ACE.md`, `Informe_Ejecucion_Prompt_Maestro_IBM_ACE.md` (workspace `Documents\AI`).
-- Guías de artefactos: `ace-flowpilot` (`skills/shared/*.md`).
+- Guías de artefactos: `<FLOWPILOT_ROOT>` (`skills/shared/*.md`).

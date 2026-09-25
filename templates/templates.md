@@ -4,9 +4,28 @@
 Definir cómo usar el repositorio plantilla para generar desarrollos, qué contiene y cómo normalizarlo antes de reutilizarlo.
 
 ## Repositorio plantilla canónico
-- **Ruta:** `C:\Users\Karina Diaz\Documents\AI ACE\app213-payexe-prorev-core-upda-s-ops-ace` (también en `Documents\AI\...`)
+- **URL de Repositorio:** `https://github.com/Karinadr/plantillas-AI/tree/IBS`
+- **Rama:** `IBS`
 - **Servicio de referencia:** `153_BUS_PayExe_ProRev_Core_Upda_S` — BUS atómico que consume el RPG `RE0058RI` (IBS) vía Backend Centralizado (`IN2100RI`).
-- **Identidad:** Remote `dev.azure.com/SOAINTCORP/PER_Fabrica_BANBIF/_git/app213-payexe-prorev-core-upda-s-ops-ace` · rama `feature/15858_153_Reversar_Pago_IBS`.
+- **Uso:** El agente debe clonar este repositorio y rama de forma local en un directorio temporal para usarlo como la única fuente de verdad y estructura.
+
+## Resolución de Plantilla (Git-First)
+Antes de iniciar la generación:
+1. Clonar de forma local la plantilla mediante:
+   ```bash
+   git clone --branch IBS --single-branch https://github.com/Karinadr/plantillas-AI.git <TEMPLATE_ROOT>
+   git -C <TEMPLATE_ROOT> rev-parse --verify HEAD
+   git -C <TEMPLATE_ROOT> ls-tree -r --name-only HEAD
+   ```
+2. Usar `<TEMPLATE_ROOT>` como el directorio de referencia y analizar su árbol real antes de generar.
+3. Registrar el commit utilizado. Todos los archivos y estructuras generados deben basarse con un 100% de fidelidad en este repositorio clonado. No inventar nombres de carpetas, de subflows ni de convenciones. No buscar archivos en otros workspaces o rutas fuera del clon de esta plantilla.
+
+## Repositorio técnico complementario
+La plantilla IBS se complementa con las guías técnicas de `ace-flowpilot`:
+- **URL:** `https://github.com/ot4i/ace-flowpilot/tree/main`
+- **Rama:** `main`
+- **Clonado:** `git clone --branch main --single-branch https://github.com/ot4i/ace-flowpilot.git <FLOWPILOT_ROOT>`
+- **Uso:** analizar el árbol real y consultar solo los archivos aplicables. Registrar el commit; no asumir rutas ni inventar contenido si una guía no existe.
 
 ## Estructura que define la plantilla (patrón fijo)
 ```

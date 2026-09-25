@@ -25,4 +25,4 @@ Escribir o modificar clases JavaCompute y dependencias Java respetando el estilo
 - No llamar a recursos externos sin timeout.
 
 ## Referencias
-- `ace-flowpilot`: `skills/ace-java-compute/SKILL.md`, `skills/shared/java-guidelines.md`.
+- `<FLOWPILOT_ROOT>`: `skills/ace-java-compute/SKILL.md`, `skills/shared/java-guidelines.md`.

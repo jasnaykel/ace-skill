@@ -24,11 +24,11 @@ Conocimiento base de ACE 12 para poder interpretar proyectos, configuraciones y 
 - Verificación de esquemas de nodos: abrir `MessageFlow.xsd`/`MessageFlowUI.xsd` (versión ACE) para validar atributos `xmi:type`.
 
 ## Entorno local (resumen — ver skill `ace-framework-setup`)
-- IBM ACE 12.0.x + IBM MQ 9.x; clonar framework (`core`, `subflows`, `policies`, `core_utils`, `creatorApp-java`, rama `dev`); carpeta `Z:\Java` para generación local; colección Postman.
+- IBM ACE 12.0.x + IBM MQ 9.x; clonar framework (`core`, `subflows`, `policies`, `core_utils`, `creatorApp-java`, rama `dev`) y, para desarrollo IBS, clonar la plantilla desde `https://github.com/Karinadr/plantillas-AI/tree/IBS`; colección Postman.
 
 ## Versiones
-- ACE 12.x / 13.x cambian rutas de XSD y nodos. Preguntar la versión del entorno si la tarea depende de esquemas de nodos (ver `ace-flowpilot: skills/shared/ace-versions.md`).
+- ACE 12.x / 13.x cambian rutas de XSD y nodos. Preguntar la versión del entorno si la tarea depende de esquemas de nodos (ver `<FLOWPILOT_ROOT>/skills/shared/ace-versions.md`).
 
 ## Referencias
-- `ace-flowpilot`: `skills/shared/ace-projects.md` (metadatos exactos), `ace-versions.md`, `node-types.md`.
+- `<FLOWPILOT_ROOT>`: `skills/shared/ace-projects.md` (metadatos exactos), `ace-versions.md`, `node-types.md`.
 - Skills propias: `ace-framework-setup`, `ace-service-dev`.

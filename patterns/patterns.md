@@ -53,4 +53,4 @@ Catálogo de patrones recurrentes de la fábrica que todo desarrollo generado o 
 
 ## Referencias
 - Repo C: subflows y ESQL reales (`SMF_<S>`, `MF_<S>`, `LIB_<S>`).
-- `ace-flowpilot`: `skills/shared/message-flow-rules.md`, `subflow-rules.md`, `review-checklist.md`.
+- `<FLOWPILOT_ROOT>`: `skills/shared/message-flow-rules.md`, `subflow-rules.md`, `review-checklist.md`.

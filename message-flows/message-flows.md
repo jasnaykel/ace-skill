@@ -91,6 +91,6 @@ Dos `ComIbmWSInput` (mTLS `/v1.0/mtls/<s>...*` con `useHTTPS="true"`; Onprem `/v
 - Al resolver un atributo desconocido: buscar la descripción en `MessageFlowUI.xsd` → obtener el id de propiedad → nombre real en `MessageFlow.xsd` → tipo/dato/default.
 
 ## Referencias
-- `ace-flowpilot/skills/shared/`: `node-types.md` (mapa canónico), `message-flow-rules.md`, `ExampleApplication/Example.msgflow`, `ExampleAPI/gen/ExampleAPI.msgflow`, `ExampleAPI/*.subflow`.
+- `<FLOWPILOT_ROOT>/skills/shared/`: `node-types.md` (mapa canónico), `message-flow-rules.md`, `ExampleApplication/Example.msgflow`, `ExampleAPI/gen/ExampleAPI.msgflow`, `ExampleAPI/*.subflow`.
 - Repo C (plantilla): implementación real de los 9 flujos del servicio 153.
 - Archivo determinante descargado: `message-flow-rules.md` (obligación XMI) + `template-blueprint.md` (formato XMI obligatorio de todo flujo).

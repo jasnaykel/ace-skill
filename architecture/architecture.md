@@ -43,5 +43,5 @@ Consumidores: APP069 (Recaudaciones), APP061 (Branch), APP204/205 (BxI PN/PJ)
 - Gestión de credenciales físicas del banco (viven en WebSEAL/políticas por ambiente).
 
 ## Referencias
-- Repo C `app213-payexe-prorev-core-upda-s-ops-ace` (caso real completo).
+- Plantilla IBS canónica: repositorio `https://github.com/Karinadr/plantillas-AI/tree/IBS` (analizar el clon de la rama antes de generar).
 - Informe del Prompt Maestro: `Informe_Ejecucion_Prompt_Maestro_IBM_ACE.md` (workspace `Documents\AI`), sección 3 y 5.

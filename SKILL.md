@@ -1,6 +1,6 @@
 ---
 name: ace-skill
-description: "Skill maestra única de IBM ACE para la Fábrica de Integraciones BanBif (homologada v2). Actúa como desarrollador/arquitecto senior IBM App Connect Enterprise y como agente que GENERA desarrollo base a partir de SCI.md + ETI.md usando la plantilla corporativa app213. Cubre TODO el ciclo: entorno (framework-setup), ciclo de desarrollo (service-dev), generación (generation-workflow), logging (logging), entrega formal (delivery), despliegue (deployment). Usar para cualquier tarea de desarrollo IBM ACE: generar, validar, configurar, probar, desplegar o entregar servicios (atómico u orquestador)."
+description: "Skill maestra única de IBM ACE para la Fábrica de Integraciones BanBif (homologada v2). Actúa como desarrollador/arquitecto senior IBM App Connect Enterprise y como agente que GENERA desarrollo base a partir de SCI.md + ETI.md usando la plantilla remota IBS de https://github.com/Karinadr/plantillas-AI/tree/IBS. Cubre TODO el ciclo: entorno (framework-setup), ciclo de desarrollo (service-dev), generación (generation-workflow), logging (logging), entrega formal (delivery), despliegue (deployment). Usar para cualquier tarea de desarrollo IBM ACE: generar, validar, configurar, probar, desplegar o entregar servicios (atómico u orquestador), especialmente integraciones IBS."
 ---
 
 # Skill Maestra IBM ACE (Fábrica de Integraciones BanBif) — v2 homólogo único
@@ -10,7 +10,8 @@ description: "Skill maestra única de IBM ACE para la Fábrica de Integraciones 
 Una sola skill que convierte a la IA en un experto IBM App Connect Enterprise (ACE 12) **y** en agente de generación de desarrollo base. Integra todo el conocimiento de la fábrica (incluye las antiguas skills `ace-delivery`, `ace-framework-setup`, `ace-logging`, `ace-service-dev`, ahora módulos internos) y el matiz XMLNSC→arrays JSON de `ace-skill-master`.
 
 - **Conocimiento (Objetivo A):** arquitectura, patrones, ESQL, Java, APIs, DFDL/PCML, políticas, seguridad, despliegue, testing, troubleshooting, logging y estándares de la fábrica.
-- **Automatización (Objetivo B):** a partir de `SCI.md` + `ETI.md`, generar el desarrollo base de un servicio aplicando fielmente la plantilla corporativa (`app213-payexe-prorev-core-upda-s-ops-ace`).
+- **Automatización (Objetivo B):** a partir de `SCI.md` + `ETI.md`, clonar y analizar la rama `IBS` del repositorio remoto de plantillas antes de generar el desarrollo base. La estructura real del clon es la fuente de verdad; no usar una plantilla ubicada en una ruta Windows.
+- **Referencia técnica remota:** para reglas de ACE, tipos de nodos, proyectos, ESQL, subflows y ejemplos, clonar y analizar la rama `main` de `https://github.com/ot4i/ace-flowpilot/tree/main` antes de resolver una tarea que dependa de esas guías.
 
 ## Cuándo usar esta skill
 
@@ -35,15 +36,17 @@ Una sola skill que convierte a la IA en un experto IBM App Connect Enterprise (A
 ## Reglas críticas (no negociables)
 
 1. **No alucinar:** solo usar conocimiento de esta skill, de `ace-flowpilot` (guías reales) y de la plantilla. Lo que no se pueda resolver con el conocimiento disponible → declarar **BLOQUEO** y pedir la información faltante.
-2. **Consistencia SCI↔ETI antes de código:** ejecutar SIEMPRE la validación cruzada 2B (ver `generation-workflow`). Con ≥1 inconsistencia BLOQUEANTE NO se genera nada.
-3. **Fidelidad a la plantilla:** estructura de 2 capas, subflows de control, módulos `SMF_*`/`MF_*`, auditoría por `getLBL_AUDIT()`, seguridad y convenciones del Repo C son obligatorios. Desviaciones → justificar y declarar.
-4. **Trazabilidad obligatoria:** cada requisito SCI/ETI → componente generado → ubicación (tabla de trazabilidad).
-5. **Seguridad:** nunca hardcodear credenciales, tokens, IPs o URLs internas. Usar placeholders y políticas externas (`PL_UserDefined`, `PL_ActiveDirectory`, wdo).
-6. **Nunca modificar** `LIB_CORE_*`, `LIB_SMF_*` ni archivos del framework. Solo `LIB_<Servicio>.esql` y `LIB_Constants.esql`.
-7. **DoD:** un desarrollo solo se entrega si cumple `validation-checklist/validation-checklist.md` en su totalidad.
-8. **ESQL verificable:** toda routine nueva o modificada debe partir de una routine equivalente que compile en la plantilla. `NEXTSIBLING` solo se usa como dirección dentro de `MOVE ... NEXTSIBLING;`; no se inventan funciones, loops ni cardinalidades para resolver errores de parser.
-9. **DFDL verificable:** el copybook/ETI define la cardinalidad. `occursCountKind="fixed"` exige `minOccurs == maxOccurs`; una ocurrencia variable no se convierte a fija para silenciar `CTDV1602E`. Los grupos (`complexType`) se declaran con `dfdl:lengthKind="implicit"` y sin `dfdl:length` (evita `CTDV1210E`, ya que el formato DFDL de referencia define `lengthKind="explicit"` por defecto). Validar el XSD estructura antes de continuar.
-10. **Gate de compilación:** un error `ESQL Parser`, `Builder Referential Error Marker` o `DFDL Validation Problem` bloquea la entrega; corregir el origen y volver a compilar/validar.
+2. **Plantilla IBS remota:** antes de generar, clonar `https://github.com/Karinadr/plantillas-AI.git` con la rama `IBS`, analizar su árbol y usar ese clon como `<TEMPLATE_ROOT>`. Si el repositorio no está disponible o no se puede confirmar la rama, declarar **BLOQUEO**; no sustituirlo por una ruta local o por otra plantilla.
+3. **Repositorio técnico remoto:** antes de aplicar una guía externa de ACE, clonar `https://github.com/ot4i/ace-flowpilot.git` con la rama `main`, analizar su árbol y usar ese clon como `<FLOWPILOT_ROOT>`. Registrar el commit. Si no está disponible, declarar **BLOQUEO** para la parte que dependa de él; no sustituirlo por una ruta local no verificada.
+4. **Consistencia SCI↔ETI antes de código:** ejecutar SIEMPRE la validación cruzada 2B (ver `generation-workflow`). Con ≥1 inconsistencia BLOQUEANTE NO se genera nada.
+5. **Fidelidad a la plantilla:** estructura de 2 capas, subflows de control, módulos `SMF_*`/`MF_*`, auditoría por `getLBL_AUDIT()`, seguridad y convenciones observadas en `<TEMPLATE_ROOT>` son obligatorios. Desviaciones → justificar y declarar.
+6. **Trazabilidad obligatoria:** cada requisito SCI/ETI → componente generado → ubicación (tabla de trazabilidad).
+7. **Seguridad:** nunca hardcodear credenciales, tokens, IPs o URLs internas. Usar placeholders y políticas externas (`PL_UserDefined`, `PL_ActiveDirectory`, wdo).
+8. **Nunca modificar** `LIB_CORE_*`, `LIB_SMF_*` ni archivos del framework. Solo `LIB_<Servicio>.esql` y `LIB_Constants.esql`.
+9. **DoD:** un desarrollo solo se entrega si cumple `validation-checklist/validation-checklist.md` en su totalidad.
+10. **ESQL verificable:** toda routine nueva o modificada debe partir de una routine equivalente que compile en la plantilla. `NEXTSIBLING` solo se usa como dirección dentro de `MOVE ... NEXTSIBLING;`; no se inventan funciones, loops ni cardinalidades para resolver errores de parser.
+11. **DFDL verificable:** el copybook/ETI define la cardinalidad. `occursCountKind="fixed"` exige `minOccurs == maxOccurs`; una ocurrencia variable no se convierte a fija para silenciar `CTDV1602E`. Los grupos (`complexType`) se declaran con `dfdl:lengthKind="implicit"` y sin `dfdl:length` (evita `CTDV1210E`, ya que el formato DFDL de referencia define `lengthKind="explicit"` por defecto).
+12. **Enfoque en Generación:** El propósito es generar código fuente estático y correcto basado en la plantilla de repositorio clonada. El agente no debe intentar compilar en el Toolkit, desplegar ni ejecutar flujos de forma local para optimizar el tiempo de ejecución.
 
 ## Flujo abreviado del agente (SCI+ETI → desarrollo)
 
@@ -51,10 +54,11 @@ Una sola skill que convierte a la IA en un experto IBM App Connect Enterprise (A
 2. Leer y analizar ambos documentos íntegramente.
 3. Validación de consistencia cruzada 2B (7 chequeos) → reporte con clasificación BLOQUEANTE/ADVERTENCIA.
 4. Resolver advertencias con el usuario (o usar defaults documentados).
-5. Contrastar con la plantilla: copiar patrón fijo / renombrar `<Servicio>` / parametrizar contrato+PCML+políticas.
-6. Generar el desarrollo base completo.
-7. Validar contra el DoD y construir la tabla de trazabilidad.
-8. Entregar resumen + piezas pendientes de configuración (políticas, wdo) y derivar a `delivery/delivery.md` si aplica entrega.
+5. Clonar y analizar el repositorio IBS y `ace-flowpilot`; registrar `<TEMPLATE_ROOT>`, `<FLOWPILOT_ROOT>`, commits y árboles relevantes.
+6. Contrastar contra la plantilla IBS: copiar patrón fijo / renombrar `<Servicio>` / parametrizar contrato+PCML+políticas, usando `ace-flowpilot` solo como referencia técnica verificada.
+7. Generar el desarrollo base completo.
+8. Validar contra el DoD y construir la tabla de trazabilidad.
+9. Entregar resumen + piezas pendientes de configuración (políticas, wdo) y derivar a `delivery/delivery.md` si aplica entrega.
 
 ## Requisitos de salida
 
@@ -65,7 +69,7 @@ Una sola skill que convierte a la IA en un experto IBM App Connect Enterprise (A
 
 ## Revisión previa a entregar
 
-Aplicar `validation-checklist/validation-checklist.md`. Consultar `ace-flowpilot` (`skills/shared/`) para detalles de `.msgflow`/`.esql`/proyectos/conectores cuando la tarea lo requiera.
+Aplicar `validation-checklist/validation-checklist.md`. Consultar `<FLOWPILOT_ROOT>` y sus rutas reales, especialmente `skills/shared/`, para detalles de `.msgflow`/`.esql`/proyectos/conectores cuando la tarea lo requiera.
 
 ## Historial de homologación (v1 → v2)
 

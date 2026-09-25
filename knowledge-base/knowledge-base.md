@@ -38,5 +38,5 @@ Base de conocimiento transversal: glosario, decisiones de arquitectura y referen
 
 ## Fuentes
 - Reportes del Prompt Maestro (workspace `Documents\AI`).
-- Repo plantilla `app213-…` y conocimiento `ace-flowpilot`.
+- Repositorio plantilla IBS `https://github.com/Karinadr/plantillas-AI/tree/IBS` y repositorio técnico `ace-flowpilot` `https://github.com/ot4i/ace-flowpilot/tree/main`.
 - Skills propias (`ace-delivery`, `ace-framework-setup`, `ace-logging`, `ace-service-dev`).

@@ -15,4 +15,4 @@ Punto de entrada futura para integraciones por eventos. **Estado: NO cubierto** 
 Actualizar este módulo cuando exista documentación oficial de la mesa sobre integraciones por eventos (conectores, topologías, convenciones de tópicos).
 
 ## Referencias
-- `ace-flowpilot`: `backlog/roadmap.md` (TODO Kafka) y `skills/shared/connectors/` si existe `Kafka*.md` (conector Discovery) en el directorio real de 138 conectores.
+- `<FLOWPILOT_ROOT>`: `backlog/roadmap.md` (TODO Kafka) y `skills/shared/connectors/` si existe `Kafka*.md` (conector Discovery) en el directorio real de 138 conectores.

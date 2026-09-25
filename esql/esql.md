@@ -81,5 +81,5 @@ PROPAGATE TO LABEL getLBL_ERR_LANDING() DELETE NONE;
 - `gen/*.msgflow` (dispatcher REST): se genera como XMI en el desarrollo base; el Toolkit lo regenera al compilar (se sobrescribe) → no editarlo a mano en el Toolkit.
 
 ## Referencias
-- `ace-flowpilot`: `skills/shared/esql-guidelines.md`, `message-flow-rules.md`, `node-types.md`, `subflow-rules.md`.
+- `<FLOWPILOT_ROOT>`: `skills/shared/esql-guidelines.md`, `message-flow-rules.md`, `node-types.md`, `subflow-rules.md`.
 - Repo C: ESQL real del servicio 153.

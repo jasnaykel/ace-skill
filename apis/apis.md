@@ -37,4 +37,4 @@ Si el backend responde `HTTP 200` con código éxito → OK; si no → respuesta
 
 ## Referencias
 - Repo C: `<S>.yaml` (OpenAPI), `request.schema.json`, `restapi.descriptor`, subflows Validate/ValidReply.
-- `ace-flowpilot`: `skills/shared/ace-projects.md` (§ REST API), `ExampleAPI/`.
+- `<FLOWPILOT_ROOT>`: `skills/shared/ace-projects.md` (§ REST API), `ExampleAPI/`.

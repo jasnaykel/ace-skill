@@ -4,7 +4,7 @@
 Compendio de reglas transversales que cualquier desarrollo (generado o manual) debe cumplir.
 
 ## Reglas de desarrollo (fábrica)
-1. **Fidelidad a la plantilla** `app213-payexe-prorev-core-upda-s-ops-ace` (Regla 3 de la skill maestra): misma estructura, subflows, módulos y convenciones.
+1. **Fidelidad a la plantilla IBS** `https://github.com/Karinadr/plantillas-AI/tree/IBS` (Regla 4 de la skill maestra): analizar el clon y conservar su estructura, subflows, módulos y convenciones.
 2. **Consistencia SCI↔ETI antes de código** (Regla 2): siempre validación 2B.
 3. **Trazabilidad** (Regla 4): cada requisito → componente → ubicación (tabla).
 4. **Seguridad** (Regla 5): nada hardcodeado; políticas externas (ver `security/security.md`).
@@ -24,7 +24,7 @@ Compendio de reglas transversales que cualquier desarrollo (generado o manual) d
 | Desarrollo/plantilla | `ace-service-dev` |
 | Logging | `ace-logging` |
 | Entrega (F01/CP4I/correo) | `ace-delivery` |
-| Guías de artefactos | `ace-flowpilot` (`skills/shared/*`) |
+| Guías de artefactos | `<FLOWPILOT_ROOT>` (`skills/shared/*`) |
 
 ## Errores que NO cometer
 - Inventar nodos/atributos (`xmi:type`) o ESQL sin verificar contra guías/plantilla.
@@ -35,4 +35,4 @@ Compendio de reglas transversales que cualquier desarrollo (generado o manual) d
 
 ## Referencias finales
 - Informe del Prompt Maestro (workspace `Documents\AI`): `Informe_Ejecucion_Prompt_Maestro_IBM_ACE.md`, `Reporte_Consistencia_SCI_ETI_...md`, `Documentacion_Skills_IBM_ACE.md`.
-- Repo plantilla y `ace-flowpilot` como fuentes de verdad.
+- La plantilla IBS (`https://github.com/Karinadr/plantillas-AI/tree/IBS`) y `ace-flowpilot` (`https://github.com/ot4i/ace-flowpilot/tree/main`) como fuentes remotas de verdad, cada una para su propósito.
