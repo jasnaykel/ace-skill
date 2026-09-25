@@ -18,7 +18,7 @@ Una sola skill que convierte a la IA en un experto IBM App Connect Enterprise (A
 | Situación | Qué leer (orden de lectura) |
 |---|---|
 | **Generar un desarrollo base desde SCI+ETI** | `generation-workflow/generation-workflow.md` → `templates/templates.md` → `standards/standards.md` → `validation-checklist/validation-checklist.md` |
-| **Validar consistencia SCI↔ETI antes de generar** | `generation-workflow/generation-workflow.md` (sección 2B) |
+| **Usar resultado externo de validación SCI↔ETI** | Recibir el resultado del script externo como insumo opcional; esta skill no ejecuta esa validación |
 | Arquitectura y patrones de un BUS BanBif | `architecture/architecture.md`, `patterns/patterns.md` |
 | Escribir/modificar ESQL (Compute, trama DFDL, auditoría) | `esql/esql.md`, `security/security.md` |
 | Crear/modificar Message Flows o subflows | `message-flows/message-flows.md` (generación XMI obligatoria) → `esql/esql.md` (§ msgflow), `patterns/patterns.md`, guías de `ace-flowpilot/shared` cuando aplique |
@@ -38,9 +38,9 @@ Una sola skill que convierte a la IA en un experto IBM App Connect Enterprise (A
 1. **No alucinar:** solo usar conocimiento de esta skill, de `ace-flowpilot` (guías reales) y de la plantilla. Lo que no se pueda resolver con el conocimiento disponible → declarar **BLOQUEO** y pedir la información faltante.
 2. **Plantilla IBS remota:** antes de generar, clonar `https://github.com/Karinadr/plantillas-AI.git` con la rama `IBS`, analizar su árbol y usar ese clon como `<TEMPLATE_ROOT>`. Si el repositorio no está disponible o no se puede confirmar la rama, declarar **BLOQUEO**; no sustituirlo por una ruta local o por otra plantilla.
 3. **Repositorio técnico remoto:** antes de aplicar una guía externa de ACE, clonar `https://github.com/ot4i/ace-flowpilot.git` con la rama `main`, analizar su árbol y usar ese clon como `<FLOWPILOT_ROOT>`. Registrar el commit. Si no está disponible, declarar **BLOQUEO** para la parte que dependa de él; no sustituirlo por una ruta local no verificada.
-4. **Consistencia SCI↔ETI antes de código:** ejecutar SIEMPRE la validación cruzada 2B (ver `generation-workflow`). Con ≥1 inconsistencia BLOQUEANTE NO se genera nada.
+4. **Validación SCI↔ETI delegada:** la validación de consistencia y su reporte pertenecen a un script externo. Esta skill no ejecuta los siete chequeos, no genera un reporte de inconsistencias y no bloquea el desarrollo base por la ausencia de ese reporte. Si el resultado externo está disponible, usarlo como contexto; no duplicar su análisis.
 5. **Fidelidad a la plantilla:** estructura de 2 capas, subflows de control, módulos `SMF_*`/`MF_*`, auditoría por `getLBL_AUDIT()`, seguridad y convenciones observadas en `<TEMPLATE_ROOT>` son obligatorios. Desviaciones → justificar y declarar.
-6. **Trazabilidad obligatoria:** cada requisito SCI/ETI → componente generado → ubicación (tabla de trazabilidad).
+6. **Trazabilidad obligatoria:** cada requisito SCI/ETI utilizado en la generación → componente generado → ubicación (tabla de trazabilidad). Esta trazabilidad no sustituye el reporte externo de consistencia.
 7. **Seguridad:** nunca hardcodear credenciales, tokens, IPs o URLs internas. Usar placeholders y políticas externas (`PL_UserDefined`, `PL_ActiveDirectory`, wdo).
 8. **Nunca modificar** `LIB_CORE_*`, `LIB_SMF_*` ni archivos del framework. Solo `LIB_<Servicio>.esql` y `LIB_Constants.esql`.
 9. **DoD:** un desarrollo solo se entrega si cumple `validation-checklist/validation-checklist.md` en su totalidad.
@@ -52,19 +52,18 @@ Una sola skill que convierte a la IA en un experto IBM App Connect Enterprise (A
 
 1. Recibir `SCI.md` y `ETI.md` (si falta alguno → BLOQUEO).
 2. Leer y analizar ambos documentos íntegramente.
-3. Validación de consistencia cruzada 2B (7 chequeos) → reporte con clasificación BLOQUEANTE/ADVERTENCIA.
-4. Resolver advertencias con el usuario (o usar defaults documentados).
-5. Clonar y analizar el repositorio IBS y `ace-flowpilot`; registrar `<TEMPLATE_ROOT>`, `<FLOWPILOT_ROOT>`, commits y árboles relevantes.
-6. Contrastar contra la plantilla IBS: copiar patrón fijo / renombrar `<Servicio>` / parametrizar contrato+PCML+políticas, usando `ace-flowpilot` solo como referencia técnica verificada.
-7. Generar el desarrollo base completo.
-8. Validar contra el DoD y construir la tabla de trazabilidad.
-9. Entregar resumen + piezas pendientes de configuración (políticas, wdo) y derivar a `delivery/delivery.md` si aplica entrega.
+3. Si existe un resultado del script externo SCI↔ETI, leerlo como insumo; no volver a ejecutar ni reproducir esa validación.
+4. Clonar y analizar el repositorio IBS y `ace-flowpilot`; registrar `<TEMPLATE_ROOT>`, `<FLOWPILOT_ROOT>`, commits y árboles relevantes.
+5. Contrastar contra la plantilla IBS: copiar patrón fijo / renombrar `<Servicio>` / parametrizar contrato+PCML+políticas, usando `ace-flowpilot` solo como referencia técnica verificada.
+6. Generar el desarrollo base completo.
+7. Validar contra el DoD y construir la tabla de trazabilidad.
+8. Entregar resumen + piezas pendientes de configuración (políticas, wdo) y derivar a `delivery/delivery.md` si aplica entrega.
 
 ## Requisitos de salida
 
 - Resumen claro de lo generado y de lo parametrizable.
 - Tabla de trazabilidad: Requisito (SCI/ETI) → Componente → Ubicación.
-- Reporte de consistencia 2B (si se generó) o de bloqueos (si no se generó).
+- Resultado del script externo SCI↔ETI, solo si fue proporcionado como insumo; la skill no genera este reporte.
 - Checklist DoD aplicado (sí/no por criterio).
 
 ## Revisión previa a entregar
@@ -77,10 +76,10 @@ Aplicar `validation-checklist/validation-checklist.md`. Consultar `<FLOWPILOT_RO
 |---|---|
 | Módulos `service-dev/`, `logging/`, `delivery/`, `framework-setup/` añadidos como módulos internos | fusión de `ace-service-dev`, `ace-logging`, `ace-delivery`, `ace-framework-setup` |
 | Regla XMLNSC→arrays JSON en `esql/esql.md` | `ace-skill-master/guidelines/esql-guidelines.md` |
-| Timeouts canónicos 16/17/16–18 y `UDP_USE_CCAS400` según ETI | resolución de inconsistencias H1/H2 |
+| Timeouts canónicos 16/17/16–18 y `UDP_USE_CCAS400` según ETI | criterios técnicos de generación |
 | Módulo `message-flows/message-flows.md`: generación XML/XMI de `.msgflow`/`.subflow` sin Toolkit + tipos validados (`ComIbmWS*`, `eflow:FCMSource/Sink`) | `message-flow-rules.md` (descargado) + `ace-flowpilot/node-types.md` + Repo C (9 flujos reales) |
 | Regla Fundamental de Fidelidad y árbol estricto (blueprint) en `templates/templates.md` | `template-blueprint.md` (descargado) |
-| Validación cruzada SCI↔ETI (6 chequeos + BLOQUEANTE/ADVERTENCIA) — ya cubierta con 7 chequeos en `generation-workflow` | `sci-eti-validation.md` (descargado) |
+| Validación SCI↔ETI retirada del flujo de generación | delegada al script externo del equipo |
 | `.project` obligatorio en ambas capas (buildSpec/natures exactos) + ESQL/DFDL reales de la plantilla como base (sin renombrar rutinas) | corrección de fidelidad solicitada por el usuario (23/09/2026) |
 | `APP_<S>/<S>.yaml` (OpenAPI de la fachada) generado SIEMPRE con el contrato real y **UNA sola stanza de servidor** (vía base `/v1.0/s/...`; prohibidas stanzas múltiples — el Toolkit rechaza con "REST API Definitions Problem"); el placeholder "Term Deposit" del Repo C no se copia | cierre de brecha de completitud detectada (23/09/2026) |
 | Las 4 skills compañeras quedan como backup en `Documents\AI\backup_skills_pre_homologacion\` | decisión de dejar UNA sola skill |

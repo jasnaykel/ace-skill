@@ -32,19 +32,15 @@ Leer ambos documentos en su totalidad. Extraer en tablas:
 - Mapeo hacia el backend (trama PCML/RPG) y de respuesta.
 - Constantes de catálogo (CT-XXX), códigos de error IBS, LDAP, endpoints, timeouts.
 
-## Paso 2 — Validación de consistencia cruzada SCI ↔ ETI (obligatoria)
-Ejecutar los 7 chequeos contra ambos documentos (y contra la plantilla como verdad terreno):
+## Paso 2 — Consumir validación SCI↔ETI externa
+La consistencia cruzada SCI↔ETI y su reporte son responsabilidad de un script externo. Esta skill:
 
-1. **Campos huérfanos:** campo que ETI mapea sin fuente en SCI → BLOQUEANTE.
-2. **Tipos incompatibles:** origen vs destino con transformación no documentada → BLOQUEANTE.
-3. **Requisitos sin implementación:** regla del SCI sin paso en el ETI → BLOQUEANTE (o ADVERTENCIA si opcional).
-4. **Endpoints/protocolos:** sistema/cola/API/ruta discrepante → BLOQUEANTE.
-5. **Cardinalidad/obligatoriedad:** obligatorio en destino sin origen → BLOQUEANTE.
-6. **Nomenclatura:** mismo concepto con nombres distintos sin justificación → ADVERTENCIA.
-7. **Ambigüedades:** requisito con ≥2 interpretaciones → ADVERTENCIA (si impide codificar → BLOQUEANTE).
+- No ejecuta los siete chequeos.
+- No genera ni replica el reporte de inconsistencias.
+- No bloquea la generación por no recibir ese reporte.
+- Puede leer un resultado externo si el usuario lo proporciona, únicamente para conocer decisiones o datos ya resueltos.
 
-**Salida obligatoria:** tabla `# | Tipo | Documento/Sección | Descripción | Clasificación | Recomendación` + veredicto.
-**Regla:** con ≥1 BLOQUEANTE NO generar. Con solo ADVERTENCIAS: solicitarlas al usuario (o usar defaults documentados) antes de generar al 100%.
+Leer SCI y ETI para extraer los datos necesarios para parametrizar el desarrollo. Si durante la generación falta un dato técnico indispensable, declarar un **BLOQUEO de información de generación**, sin convertirlo en un reporte de consistencia SCI↔ETI.
 
 ## Paso 3 — Contraste con la plantilla
 Resolver para el nuevo servicio `<Servicio>`:

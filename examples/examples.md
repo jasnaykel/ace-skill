@@ -4,7 +4,7 @@
 Casos de referencia verificados que la skill puede citar como ejemplos de patrones, mapeos y decisiones.
 
 ## Ejemplo principal: `BUS_Reversar_Pago_IBS` (153)
-- **SCIENTÍFICO:** SCI (`SCI_SRV_ReversarPagoIBS.md`) + ETI (`ETI_153_BUS_Reversar_Pago_IBS.md`); ver `Reporte_Consistencia_SCI_ETI_153_BUS_Reversar_Pago_IBS.md`.
+- **SCIENTÍFICO:** SCI (`SCI_SRV_ReversarPagoIBS.md`) + ETI (`ETI_153_BUS_Reversar_Pago_IBS.md`). La consistencia SCI↔ETI se valida fuera de esta skill mediante el script externo.
 - **Implementación real (plantilla):** rama `IBS` del repositorio `https://github.com/Karinadr/plantillas-AI/tree/IBS`.
 
 ### Datos duros extraídos
@@ -28,7 +28,7 @@ Casos de referencia verificados que la skill puede citar como ejemplos de patron
 
 ## Cómo usar
 - Como plantilla de contrato/mapeo cuando la tarea sea de un BUS atómico REST.
-- Como referencia de decisiones resueltas (D1–D6 pendientes en el reporte de consistencia) cuando aplique.
+- Como referencia de decisiones ya resueltas por el proceso externo cuando el usuario las proporcione.
 
 ## Backlog de ejemplos futuros
 - Orquestador (invoca 2+ atómicos) — no presente aún.

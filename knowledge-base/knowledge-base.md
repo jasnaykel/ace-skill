@@ -33,7 +33,7 @@ Base de conocimiento transversal: glosario, decisiones de arquitectura y referen
 - **¿Echo el `TransactionReference`?** No siempre: la respuesta trae el valor del backend (`OUR02TRX`). Confirmar en el ETI.
 - **¿Puedo editar `gen/*.msgflow`?** No; se regenera desde el Toolkit.
 - **¿`FullName` es obligatorio?** En el caso 153, NO (opcional; `request.schema.json` lo deja fuera de `required`).
-- **¿Cómo se resuelve el "Transaccion Duplicada" (0815)?** Confirmar regla del servicio (HTTP 200 con código en body vs rama de error). Ver reporte de consistencia D2.
+- **¿Cómo se resuelve el "Transaccion Duplicada" (0815)?** Confirmar la regla funcional proporcionada para el servicio (HTTP 200 con código en body vs rama de error). La validación SCI↔ETI pertenece al proceso externo.
 - **¿Qué hago si el ETI pide timeout 25 s?** Pedir decisión: 16–18 s es el estándar de fábrica (reporte D1).
 
 ## Fuentes
