@@ -12,13 +12,13 @@ Un desarrollo generado es correcto solo si cumple TODOS estos criterios:
 - [ ] **Tabla de trazabilidad completa:** Requisito (SCI/ETI) → Componente generado → Ubicación.
 
 ### Fidelidad a la plantilla
-- [ ] Estructura de 2 capas (Application fachada + REST Service) respetada.
-- [ ] Metadatos Eclipse `.project` presentes en AMBAS capas con buildSpec/natures exactos de la plantilla (sin builders inventados).
-- [ ] `APP_<S>/<S>.yaml` (OpenAPI de la fachada) presente con el contrato REAL y **UNA sola stanza `servers`** (vía base `/v1.0/s/...`), nunca múltiples stanzas ni el placeholder de otra plantilla.
-- [ ] **Flujos generados como XMI** según `message-flows/message-flows.md`: `MF_<S>.msgflow` (fachada), `gen/<S>.msgflow` (dispatcher REST) y subflows obligatorios.
-- [ ] Subflows de control presentes: `HealthCheck`, `Validate`, `ValidReply`, `<Operación>.subflow`, `Input{Catch,Failure,Timeout}Handler`.
-- [ ] Módulos `SMF_<S>_<Paso>` (PrepInvocacion/PrepRespSrv/ControlarError/ControlarException) y `MF_<S>` (CheckIfReplied/ApplySecurityHeaders).
-- [ ] Auditoría/ELK por `PROPAGATE TO LABEL getLBL_AUDIT()` + labels `lblAudit/lblELK`.
+- [ ] El inventario de rutas, proyectos y artefactos generados coincide con la plantilla seleccionada; no se usó el inventario de la otra rama.
+- [ ] La estructura, capas y proyectos presentes en la plantilla seleccionada se conservaron al 100%; no se agregaron capas ausentes.
+- [ ] Los metadatos Eclipse `.project`, si existen, tienen buildSpec/natures exactos de la plantilla seleccionada.
+- [ ] Los contratos, OpenAPI, `servers`, fachadas, flujos, subflows, módulos, DFDL/PCML, políticas y pruebas se validan solo si existen en la plantilla seleccionada o los exige el ETI.
+- [ ] Los artefactos de flujo existentes se generaron como XML/XMI válido según la topología real de la plantilla y `ace-flowpilot`.
+- [ ] Los archivos de lógica de negocio modificados corresponden a archivos existentes en la plantilla seleccionada; no se crearon equivalentes IBS para HUB.
+- [ ] Auditoría, ELK, seguridad y manejo de errores conservan el patrón real de la plantilla seleccionada.
 - [ ] Desviaciones justificadas y declaradas (si las hubo).
 
 ### Estructura y Sintaxis Estática
@@ -27,28 +27,29 @@ Un desarrollo generado es correcto solo si cumple TODOS estos criterios:
 - [ ] `NEXTSIBLING` aparece solo en statements completos `MOVE ... NEXTSIBLING;` o `MOVE ... NEXTSIBLING NAME '...';`; no existe como función, token aislado ni condición `WHILE`.
 - [ ] El recorrido de hermanos repetidos usa la forma canónica `REFERENCE` + `WHILE LASTMOVE(...) DO ... END WHILE` (LASTMOVE avanza por cada ocurrencia); si aparece `MOVE ... NEXTSIBLING;` debe ser un statement completo con `;` y `FIELDVALUE(...)` para escalares.
 - [ ] La compilación de ambas capas termina sin `ESQL Parser`, `Builder Referential Error Marker` ni errores referenciales equivalentes.
-- [ ] Cada DFDL derivado de copybook fue validado en el Toolkit sin `DFDL Validation Problem`.
-- [ ] La cardinalidad DFDL coincide con el copybook/ETI: `occursCountKind="fixed"` tiene `minOccurs == maxOccurs`; las ocurrencias variables no fueron convertidas a `fixed` para ocultar un error.
-- [ ] Los grupos (`complexType`) DFDL llevan `dfdl:lengthKind="implicit"` y sin `dfdl:length`; ningún grupo quedó con `lengthKind="explicit"` sin `length` (evita `CTDV1210E`).
-- [ ] `xmi:type` de nodos validado (trampa HTTP: `ComIbmWSInput/Reply`, no `ComIbmHTTP*`; subflow In/Out `eflow:FCMSource/FCMSink`).
-- [ ] `.msgflow`/`.subflow` bien formados XML/XMI (cabecera `ecore:EPackage`, `composition{nodes,connections}`, nsURI/nsPrefix correctos).
-- [ ] OpenAPI + `request.schema.json` consistentes con el contrato SCI/ETI (longitudes, regex, required).
+- [ ] Si existe DFDL, fue validado en el Toolkit sin `DFDL Validation Problem`.
+- [ ] Si existe DFDL, su cardinalidad coincide con el copybook/ETI y conserva la estrategia de la plantilla.
+- [ ] Si existen grupos DFDL, sus reglas `lengthKind` y `length` coinciden con la plantilla y el esquema validado.
+- [ ] Si existen flujos, los `xmi:type` de nodos fueron validados contra `ace-flowpilot` y la plantilla seleccionada.
+- [ ] Si existen `.msgflow`/`.subflow`, están bien formados XML/XMI y conservan namespaces, composición e identificadores esperados.
+- [ ] Si existe OpenAPI, `request.schema.json` y demás contratos, son consistentes con SCI/ETI y la plantilla seleccionada.
 
 
 ### Manejo de errores
-- [ ] Decisión OK/ERROR en `PrepRespSrv` (HTTP 200 + código éxito → OK; si no → rama error).
-- [ ] Handlers Catch/Failure/Timeout conectados al `restapi.descriptor`.
-- [ ] Códigos IBS (`ELEERR` PECODE/PERROR/PEMNSG) mapeados según tabla; error funcional ≠ técnico.
+- [ ] El manejo OK/ERROR conserva el patrón real de la plantilla seleccionada.
+- [ ] Los handlers y descriptores existentes están conectados conforme a la plantilla seleccionada.
+- [ ] Los códigos de error, incluidos códigos IBS o `ELEERR` cuando aplique, fueron mapeados según el ETI y la plantilla seleccionada.
 
 ### Seguridad
 - [ ] Sin credenciales/tokens/IP/URLs internas hardcodeadas (placeholders y políticas externas).
-- [ ] Doble vía mTLS + Onprem, LDAP (`PL_ActiveDirectory`), security headers en respuesta.
+- [ ] mTLS, Onprem, LDAP y security headers se validan solo si existen en la plantilla seleccionada o los exige el ETI.
 
 ### Configuración
-- [ ] `valid_cfg_values.yaml` y wdo completos por ambiente (LDAP GD/GQ/GP, destinos, timeouts, `UDP_OPERACION_GET`).
-- [ ] Constantentes CT-XXX y `cod_servicio` cargados en `PL_UserDefined`.
+- [ ] Las configuraciones por ambiente, wdo, destinos, timeouts y políticas existentes están completas según la plantilla seleccionada y el ETI.
+- [ ] Las constantes y códigos de servicio están cargados solo en los archivos de política que existan en la plantilla seleccionada.
 
 ### Documentación y pruebas
+- [ ] `README.md` generado con la estructura global de `templates/readme-eti-template.md` y datos reales del `SCI.md`, `ETI.md` y la plantilla seleccionada.
 - [ ] Encabezado descriptivo en cada componente generado.
 - [ ] Colección Postman por ambiente (éxito + escenarios de error).
 
