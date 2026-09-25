@@ -21,8 +21,8 @@ Un desarrollo generado es correcto solo si cumple TODOS estos criterios:
 - [ ] Auditoría/ELK por `PROPAGATE TO LABEL getLBL_AUDIT()` + labels `lblAudit/lblELK`.
 - [ ] Desviaciones justificadas y declaradas (si las hubo).
 
-### Compilabilidad
-- [ ] `.esql` sintácticamente válido en el ACE Toolkit; sin `BROKER SCHEMA` innecesario, `DOUBLE`/`RANDOM`/`CREATE OUTPUTROOT`.
+### Estructura y Sintaxis Estática
+- [ ] `.esql` sintácticamente válido y estructurado; sin `BROKER SCHEMA` innecesario, `DOUBLE`/`RANDOM`/`CREATE OUTPUTROOT`.
 - [ ] Cada routine ESQL nueva o modificada se basa en una routine equivalente que compila en la plantilla; no se inventaron statements para corregir un error.
 - [ ] `NEXTSIBLING` aparece solo en statements completos `MOVE ... NEXTSIBLING;` o `MOVE ... NEXTSIBLING NAME '...';`; no existe como función, token aislado ni condición `WHILE`.
 - [ ] El recorrido de hermanos repetidos usa la forma canónica `REFERENCE` + `WHILE LASTMOVE(...) DO ... END WHILE` (LASTMOVE avanza por cada ocurrencia); si aparece `MOVE ... NEXTSIBLING;` debe ser un statement completo con `;` y `FIELDVALUE(...)` para escalares.

@@ -36,13 +36,13 @@ Diagnóstico estructurado de fallas típicas en servicios BUS de la fábrica (ru
 3. Eliminar cualquier uso de `NEXTSIBLING` como función, token aislado o condición de `WHILE`.
 4. Verificar que el `REFERENCE` esté declarado y que el statement tenga punto y coma.
 5. Sustituir el bloque por la routine equivalente que compila en la plantilla y reaplicar solo el mapeo SCI/ETI.
-6. Recompilar antes de continuar. No agregar casts, funciones o cambios de cardinalidad para silenciar el parser.
+6. Verificar la sintaxis estática antes de continuar. No agregar casts, funciones o cambios de cardinalidad para forzar el silenciado de la validación estructural.
 
 ### `CTDV1602E: occursCountKind fixed requiere minOccurs y maxOccurs iguales`
 1. Identificar el grupo repetido en el XSD y abrir el `OCCURS` equivalente del copybook.
 2. Si es `OCCURS` fijo, conservar el mismo valor en `minOccurs` y `maxOccurs`.
 3. Si es `OCCURS ... DEPENDING ON` o `OCCURS *`, no convertirlo a `fixed`; aplicar la estrategia de la plantilla o declarar BLOQUEO.
-4. Ejecutar nuevamente la validación DFDL del Toolkit.
+4. Verificar de forma estática la consistencia del esquema DFDL.
 
 ### `CTDV1210E: lengthKind explicit exige la propiedad length`
 1. Revisar el elemento señalado: si es un **grupo** (`<xsd:complexType>`, p. ej. `LISTADOCOBRANZARSP`), nunca debe llevar `dfdl:length`; su longitud se calcula de los hijos.

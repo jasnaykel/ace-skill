@@ -42,7 +42,7 @@ Una sola skill que convierte a la IA en un experto IBM App Connect Enterprise (A
 6. **Nunca modificar** `LIB_CORE_*`, `LIB_SMF_*` ni archivos del framework. Solo `LIB_<Servicio>.esql` y `LIB_Constants.esql`.
 7. **DoD:** un desarrollo solo se entrega si cumple `validation-checklist/validation-checklist.md` en su totalidad.
 8. **ESQL verificable:** toda routine nueva o modificada debe partir de una routine equivalente que compile en la plantilla. `NEXTSIBLING` solo se usa como dirección dentro de `MOVE ... NEXTSIBLING;`; no se inventan funciones, loops ni cardinalidades para resolver errores de parser.
-9. **DFDL verificable:** el copybook/ETI define la cardinalidad. `occursCountKind="fixed"` exige `minOccurs == maxOccurs`; una ocurrencia variable no se convierte a fija para silenciar `CTDV1602E`. Los grupos (`complexType`) se declaran con `dfdl:lengthKind="implicit"` y sin `dfdl:length` (evita `CTDV1210E`, ya que el formato DFDL de referencia define `lengthKind="explicit"` por defecto). Validar el XSD en el Toolkit antes de continuar.
+9. **DFDL verificable:** el copybook/ETI define la cardinalidad. `occursCountKind="fixed"` exige `minOccurs == maxOccurs`; una ocurrencia variable no se convierte a fija para silenciar `CTDV1602E`. Los grupos (`complexType`) se declaran con `dfdl:lengthKind="implicit"` y sin `dfdl:length` (evita `CTDV1210E`, ya que el formato DFDL de referencia define `lengthKind="explicit"` por defecto). Validar el XSD estructura antes de continuar.
 10. **Gate de compilación:** un error `ESQL Parser`, `Builder Referential Error Marker` o `DFDL Validation Problem` bloquea la entrega; corregir el origen y volver a compilar/validar.
 
 ## Flujo abreviado del agente (SCI+ETI → desarrollo)

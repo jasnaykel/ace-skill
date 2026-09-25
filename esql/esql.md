@@ -44,7 +44,7 @@ El recorrido repetido se realiza sobre una referencia declarada al primer hijo r
 - Leer escalares con `FIELDVALUE(...)`.
 - Para listas, conservar la construcción de array que usa la routine equivalente de la plantilla. `IDENTITY (JSON.Array)` solo se añade cuando esa routine y el dominio de salida lo requieren.
 - No concatenar cadenas para representar listas ni cambiar la cardinalidad para hacer que compile.
-- Después de cada routine nueva o modificada, compilar el proyecto y corregir el error antes de continuar.
+- Después de cada routine nueva o modificada, verificar la sintaxis de forma estática para asegurar que sea correcta.
 
 ### JSON de entrada (root JSON) — sin `BROKER SCHEMA`
 ```sql
@@ -58,7 +58,6 @@ CREATE FIELD OutputRoot.JSON.Data.CentralizedConnector.NamePcml VALUE 'RE0058RI'
 - Cuando `occursCountKind` sea `fixed`, `minOccurs` y `maxOccurs` deben representar el mismo valor fijo. Si el copybook define una lista variable o no permite determinar el límite, usar la estrategia DFDL del template o declarar BLOQUEO; no forzar ambos valores a `1`.
 - Los **grupos** (elementos `complexType`, p. ej. `LISTADOCOBRANZARSP`) se declaran con `dfdl:lengthKind="implicit"` — su longitud se deriva de los hijos, que sí llevan `dfdl:length=<n>`. NUNCA poner `dfdl:length` en un grupo: el formato DFDL de referencia define `lengthKind="explicit"` por defecto y un grupo sin `lengthKind` explícito dispara `CTDV1210E`.
 - Para campos de descripción de errores usar tipo `characters`, nunca `bytes`.
-- Ejecutar la validación DFDL del Toolkit después de importar/editar el XSD. Un error de validación bloquea la entrega.
 - `CTRLLENGTHCPY.Compute` valida la longitud del mensaje recibido (`C8OPLEN` = `LENGTH(message)`) contra `inputDirectory` del copybook.
 - Armado: `prepareDataRequestDFDL` + `StructureDFDL` + `convertDfdlToChar`; lectura: `convertCharToDfdlV2` + navegación `RE0058RIRSP.ELEERR`.
 
