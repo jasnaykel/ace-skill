@@ -21,7 +21,7 @@ Determinar el dominio exclusivamente desde el encabezado del componente en `ETI.
 | `# Componente IBS` | `IBS` | `IBS` | `app213-payexe-prorev-core-upda-s-ops-ace` |
 | `# Componente API REST` | `HUB` | `HUB` | `app213-payexe-prorev-hub-upda-s-ops-ace` |
 
-La comparación se hace solo sobre líneas de encabezado Markdown de nivel 1 (`^# ...$`), normalizando espacios al inicio/final y espacios consecutivos. No inferir la plantilla desde el nombre del servicio, backend, endpoint, protocolo o contenido del `SCI.md`. Debe existir exactamente un encabezado selector válido. Si falta, no coincide, aparecen dos selectores válidos o existe una variante no documentada, declarar **BLOQUEO** y detener la generación.
+La comparación se hace sobre encabezados Markdown normalizados únicamente en espacios. No inferir la plantilla desde el nombre del servicio, backend, endpoint, protocolo o contenido del `SCI.md`. Si falta el encabezado, no coincide, aparecen los dos encabezados o existen variantes no documentadas, declarar **BLOQUEO** y detener la generación.
 
 ```bash
 git clone --branch <BRANCH> --single-branch https://github.com/Karinadr/plantillas-AI.git <TEMPLATE_REPO_ROOT>
@@ -58,12 +58,17 @@ Resolver para el nuevo servicio `<Servicio>`:
 
 | Acción | Qué |
 |---|---|
-| **Copiar** (patrón fijo) | Exclusivamente los proyectos, capas, subflows, módulos, políticas, contratos y archivos que existan en `<TEMPLATE_ROOT>`, conservando su topología y convenciones |
-| **Renombrar** | Solo nombres que existan en la plantilla seleccionada y que deban cambiar por el servicio; no crear equivalentes IBS para HUB |
-| **Parametrizar** (desde SCI/ETI) | Solo valores y contratos presentes en la plantilla seleccionada y exigidos por SCI/ETI; DFDL/PCML, OpenAPI, LDAP, mTLS, HUB, backend y manejo de errores son condicionales |
+| **Copiar** (patrón fijo) | 2 capas (fachada + service), subflows (HealthCheck, Validate, ValidReply, `<Operación>`, handlers Catch/Failure/Timeout), módulos `SMF_<S>_<Paso>`/`MF_<S>`, auditoría `getLBL_AUDIT()` + `lblAudit/lblELK`, seguridad mTLS/Onprem + LDAP, DFDL/PCML, `ci/` |
+| **Renombrar** | `APP_<S>`, `MF_<S>.msgflow`, `LIB_<S>.esql`, `LIB_Constants.esql`, `SMF_<S>`, `<S>.yaml`, subflows, wdo, `PLP_<S>`, `C_PLP_SERVICE=<PLP_<S>>:PL_UserDefined`, `BROKER SCHEMA ace.esb.<s>...` |
+| **Parametrizar** (desde SCI/ETI) | `cod_servicio`, constantes CT-XXX, contrato OpenAPI + `request.schema.json` (campos/longitudes/regex/obligatoriedad), mapeo `prepareDataRequestDFDL` y `armaRpta*_OK/_ERROR`, destinos (URLDEST/TIMEOUT/PROTOCOLO/METODO/PROGRAM/PCML), LDAP GD/GQ/GP, timeouts, `UDP_OPERACION_GET`, monitoreo, Postman |
 
 ## Paso 4 — Generación
-Generar el desarrollo base completo replicando exclusivamente el árbol y los artefactos encontrados en `<TEMPLATE_ROOT>`. Antes de generar, crear un inventario de rutas, proyectos, archivos y tipos de artefacto de la plantilla. No asumir que existen `src/application`, `src/v1.0/service`, DFDL/PCML, `ci`, `test`, políticas, subflows o una fachada determinada; confirmar cada uno en el inventario.
+Generar el desarrollo base completo:
+1. `src/application/APP_<S>/` (fachada mTLS+Onprem): **`<S>.yaml` (OpenAPI de la fachada: UNA stanza `servers` con vía base `/v1.0/s/...` + schemas del contrato; los canales mTLS/onprem SOLO como descripción)** + **`.project`** + `application.descriptor` + **`MF_<S>.msgflow` generado como XMI** (`message-flows/message-flows.md`).
+2. `src/v1.0/service/<S>/` (contrato + **`.project`** + **`gen/<S>.msgflow` + subflows generados como XMI** + DFDL/PCML (`IBMdefined/`, `importFiles/`, `log/`) + ESQL por capas).
+3. `src/v1.0/configuration/{DEV,QAS,PRD}/` (políticas `PL_UserDefined`, `PL_ActiveDirectory`, `Monitoring` + wdo).
+4. `ci/valid_cfg_values.yaml` + `ci/Monitoring.json`.
+5. `test/` Postman.
 
 > ⛔ Los `.project` deben replicar buildSpec/natures exactos de la plantilla (los `.esql` y artefactos DFDL se sirven desde la plantilla como base, normalizando solo residuos y sin renombrar rutinas/módulos). Los `.msgflow`/`.subflow` NO se difieren al Toolkit: se entregan como XML/XMI válido (ver `message-flows/message-flows.md`). Solo quedan para el Toolkit: import DFDL (→`.xsd`+`importFiles/`+`IBMdefined/`+`log/`), regeneración de `gen/*.msgflow` al compilar y scaffolding de Policy Projects.
 
@@ -92,12 +97,12 @@ Aplicar `validation-checklist/validation-checklist.md` de forma estática y cons
 ## Paso 6 — Entrega
 Resumen de lo generado, trazabilidad, piezas pendientes (políticas por ambiente, credenciales, URLs reales) y, si aplica, derivar a `ace-delivery` (F01, pipeline, Nexus, CP4I, correo).
 
-## Paso 7 — Generación del README.md (obligatorio y global)
-`templates/readme-eti-template.md` es la plantilla documental corporativa global para todos los servicios, tanto `IBS` como `HUB`. Debe utilizarse siempre como estructura del README y completarse con los datos reales del `SCI.md`, `ETI.md` y la plantilla seleccionada. Los valores de ejemplo o placeholders del archivo nunca se copian como datos reales del servicio.
+## Paso 7 — Generación del README.md (obligatorio)
+Generar el README técnico basado en `templates/readme-eti-template.md` y entregarlo en la raíz del repositorio.
 
 **Acciones:**
-1. Leer `templates/readme-eti-template.md` como estructura documental global.
-2. Extraer únicamente los datos aplicables del SCI/ETI y de la plantilla seleccionada:
+1. Leer el template: `templates/readme-eti-template.md`.
+2. Extraer datos del SCI/ETI:
    - `ID`: Token numérico inicial del nombre del servicio en SCI (ej. "167" de "167_BUS_...").
    - `NombreFuncionalSnake`: `<NombreFuncional>` formateado a snake_case (ej. "actualiza_tipo_cambio_segmentado").
    - `Línea de Producto` y `Producto`: De la sección 3 del ETI (Columnas 2 y 3).
@@ -106,9 +111,21 @@ Resumen de lo generado, trazabilidad, piezas pendientes (políticas por ambiente
    - `BianPath`: De la sección 5.1 del ETI.
 3. Rellenar los placeholders `{{...}}` del template con los datos extraídos.
 4. Escribir el resultado en la **raíz** del repositorio: `README.md`.
-5. Verificar que el README conserve la estructura global del template y que todos sus datos correspondan al servicio actual. El contenido se adapta al componente `IBS` o `API REST` según el ETI; no conservar valores de ejemplo de otro servicio.
+5. Verificar que la primera línea tenga el formato `# <ID>_BUS_<NombreFuncionalSnake>` (sin emojis ni decoraciones adicionales) y que la sección 3 contenga la tabla de campos.
 
 > ⛔ Si falta algún dato obligatorio → ADVERTENCIA (usar defaults si existen en el template, si no, comentar).
 
 ## Defaults documentados (cuando el SCI/ETI no lo definan)
-- Timeouts, protocolo, instancias WDO, seguridad, conectores y formato de errores: usar solo valores de la plantilla seleccionada o del ETI. Si no están definidos, declarar BLOQUEO de información de generación; no aplicar defaults IBS a HUB.
+- Timeouts: backend `16 s`, servidor `17 s`, cliente `16–18 s` (si el ETI difiere, pedir decisión).
+- Protocolo backend: `TLSv1.3`.
+- Instancias WDO: `10`.
+- `MTLS` externa + `Onprem` interna; conector AS400 inicia en `N`.
+- Formato de errores: JSON `faultFormat`; error de campo → HTTP 202 en capa entrada.
+
+### 4.1.2 - Gate de proyectos y nombres canonicos
+
+Antes de entregar, validar obligatoriamente:
+
+1. Todos los ESQL usan `BROKER SCHEMA` con segmentos separados por punto; el schema declarado coincide con cada `esql://routine`.
+2. `APP_<S>/.project` tiene `<projects>` con `LIB_CORE_CONTROL`, `LIB_CORE_COMMON` y `LIB_SMF_UTIL`; `application.descriptor` tiene las mismas referencias. No crear una carpeta fÃ­sica `Referenced Libraries` como sustituto.
+3. Cada policy project DEV, QAS y PRD tiene `.project`, `.settings/org.eclipse.core.resources.prefs` exacto y `policy.descriptor` vÃ¡lido.
