@@ -47,7 +47,7 @@ Una sola skill que convierte a la IA en un experto IBM App Connect Enterprise (A
 10. **DoD:** un desarrollo solo se entrega si cumple `validation-checklist/validation-checklist.md` en su totalidad.
 11. **ESQL verificable:** toda routine nueva o modificada debe partir de una routine equivalente que compile en la plantilla. `NEXTSIBLING` solo se usa como dirección dentro de `MOVE ... NEXTSIBLING;`; no se inventan funciones, loops ni cardinalidades para resolver errores de parser.
 12. **DFDL verificable:** el copybook/ETI define la cardinalidad. `occursCountKind="fixed"` exige `minOccurs == maxOccurs`; una ocurrencia variable no se convierte a fija para silenciar `CTDV1602E`. Los grupos (`complexType`) se declaran con `dfdl:lengthKind="implicit"` y sin `dfdl:length` (evita `CTDV1210E`, ya que el formato DFDL de referencia define `lengthKind="explicit"` por defecto).
-13. **Enfoque en Generación:** El propósito es generar código fuente estático y correcto basado en la plantilla de repositorio clonada. El agente no debe intentar compilar en el Toolkit, desplegar ni ejecutar flujos de forma local para optimizar el tiempo de ejecución.
+13. **Enfoque en Generación:** El propósito es generar código fuente estático y correcto basado en la plantilla de repositorio clonada. En servicios AS400/Mainframe, el XSD DFDL es obligatorio: conservar el XSD producido por ACE Toolkit o generarlo con `scripts/generate_cobol_dfdl_xsd.py` cuando el importador no pueda invocarse. La entrega queda bloqueada hasta realizar la validación DFDL disponible.
 
 ## Flujo abreviado del agente (SCI+ETI → desarrollo)
 

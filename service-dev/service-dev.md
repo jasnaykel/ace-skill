@@ -90,14 +90,14 @@ LIB_Constants.esql           ← constantes del servicio (valores fijos)
 ---
 
 ## FASE 3 — DFDL (solo si el backend es AS400 / Mainframe)
-Generar desde el Toolkit → New → Message Model → DFDL:
+Generar desde el Toolkit → New → Message Model → DFDL. Si el Toolkit no puede invocarse durante la generación, usar el fallback `scripts/generate_cobol_dfdl_xsd.py` de esta skill y validar luego el resultado en ACE Toolkit:
 1. Seguir los 8 pasos del wizard usando el copybook real del servicio.
 2. Antes de validar, comparar cada grupo repetido con el `OCCURS` del copybook y con la cardinalidad del ETI. No asumir que todos los grupos son de tamaño fijo.
 3. Para `occursCountKind="fixed"`, conservar el mismo valor en `minOccurs` y `maxOccurs`. Para `OCCURS ... DEPENDING ON` o `OCCURS *`, conservar la estrategia de ocurrencia variable de la plantilla o declarar BLOQUEO; no convertir el grupo a `fixed` solo para eliminar `CTDV1602E`.
 4. Todo **grupo** (`complexType`) se declara con `dfdl:lengthKind="implicit"` (longitud derivada de los hijos, cada uno con su `dfdl:length`). No poner `dfdl:length` en un grupo; el default del formato (`lengthKind="explicit"`) dispara `CTDV1210E` al no tener `length`.
 5. **CRÍTICO en paso 8**: los campos de descripción de errores deben ser tipo `characters`, NO `bytes`.
 6. Ejecutar la validación DFDL del Toolkit. Si aparece `DFDL Validation Problem`, comparar con el copybook y corregir la cardinalidad o el `lengthKind`; no cambiar valores a ciegas.
-7. Registrar el resultado de validación y conservar el XSD validado junto con el servicio.
+7. Registrar el resultado de validación y conservar el XSD validado junto con el servicio. La generación se considera incompleta si falta `<PCML>.xsd`.
 
 ---
 

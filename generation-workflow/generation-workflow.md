@@ -65,12 +65,12 @@ Resolver para el nuevo servicio `<Servicio>`:
 ## Paso 4 — Generación
 Generar el desarrollo base completo:
 1. `src/application/APP_<S>/` (fachada mTLS+Onprem): **`<S>.yaml` (OpenAPI de la fachada: UNA stanza `servers` con vía base `/v1.0/s/...` + schemas del contrato; los canales mTLS/onprem SOLO como descripción)** + **`.project`** + `application.descriptor` + **`MF_<S>.msgflow` generado como XMI** (`message-flows/message-flows.md`).
-2. `src/v1.0/service/<S>/` (contrato + **`.project`** + **`gen/<S>.msgflow` + subflows generados como XMI** + DFDL/PCML (`IBMdefined/`, `importFiles/`, `log/`) + ESQL por capas).
+2. `src/v1.0/service/<S>/` (contrato + **`.project`** + **`gen/<S>.msgflow` + subflows generados como XMI** + DFDL/PCML (`IBMdefined/`, `importFiles/`, `log/`, **`<PCML>.xsd`**) + ESQL por capas).
 3. `src/v1.0/configuration/{DEV,QAS,PRD}/` (políticas `PL_UserDefined`, `PL_ActiveDirectory`, `Monitoring` + wdo).
 4. `ci/valid_cfg_values.yaml` + `ci/Monitoring.json`.
 5. `test/` Postman.
 
-> ⛔ Los `.project` deben replicar buildSpec/natures exactos de la plantilla (los `.esql` y artefactos DFDL se sirven desde la plantilla como base, normalizando solo residuos y sin renombrar rutinas/módulos). Los `.msgflow`/`.subflow` NO se difieren al Toolkit: se entregan como XML/XMI válido (ver `message-flows/message-flows.md`). Solo quedan para el Toolkit: import DFDL (→`.xsd`+`importFiles/`+`IBMdefined/`+`log/`), regeneración de `gen/*.msgflow` al compilar y scaffolding de Policy Projects.
+> ⛔ Los `.project` deben replicar buildSpec/natures exactos de la plantilla. Los `.msgflow`/`.subflow` NO se difieren al Toolkit: se entregan como XML/XMI válido. El XSD DFDL **sí es obligatorio en la salida**: generarlo con ACE Toolkit o, si no es posible invocar el importador, con `scripts/generate_cobol_dfdl_xsd.py`; después validarlo en ACE Toolkit. Nunca entregar solo el copybook y el reporte de importación.
 
 ### 4.1 — Gate de verificación estructural y sintáctica (obligatorio)
 

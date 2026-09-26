@@ -101,7 +101,7 @@ azure-pipelines.yml             pipeline por plantillas common_components
 3. Rellenar contrato, mapeos, políticas y wdo desde el SCI/ETI.
 4. Conservar el patrón de auditoría/ELK/seguridad intacto.
 5. Generar `MF_<S>.msgflow`, `gen/<S>.msgflow` y los subflows como XML/XMI según `message-flows/message-flows.md` (replicando la topología de Repo C).
-6. Generar los `.project` (buildSpec/natures exactos de la plantilla por capa) y copiar los ESQL y artefactos DFDL/PCML reales de la plantilla como base (normalizando residuos, sin cambiar nombres de rutinas/módulos).
+6. Generar los `.project` (buildSpec/natures exactos de la plantilla por capa), generar/conservar el XSD DFDL del copybook y copiar los ESQL y artefactos DFDL/PCML reales de la plantilla como base (normalizando residuos, sin cambiar nombres de rutinas/módulos).
 7. Generar `APP_<S>/<S>.yaml` (OpenAPI de la fachada) con **UNA sola stanza `servers`** (vía base `/v1.0/s/...` de la operación) y los schemas del contrato del servicio; los canales mTLS/onprem se documentan SOLO como descripción (ver regla de reconciliación arriba).
 
 ### Regla de schema, Referenced Libraries y Policy projects
