@@ -525,3 +525,118 @@ C:\Users\%USERNAME%\.agents\skills\ace-skill\SKILL.md
 ```
 
 Este README es una guia para la persona usuaria. `SKILL.md` contiene las reglas internas que debe seguir la IA.
+
+---
+
+### 18 Opcion A: copiar la carpeta al agente
+
+Si tu otra IA utiliza una carpeta de skills, copia `ace-skill` completa dentro de esa carpeta.
+
+Ejemplo generico:
+
+```text
+<carpeta-de-skills-del-agente>/ace-skill
+```
+
+Despues reinicia el agente para que detecte la nueva skill.
+
+Importante: copia la carpeta completa, no solo `SKILL.md`. Los modulos internos son necesarios para cumplir las reglas.
+
+### 18.1 Opcion B: cargar el archivo SKILL.md
+
+Si tu otra IA no tiene carpeta de skills, puedes pegarle el contenido del archivo:
+
+```text
+C:\Users\%USERNAME%\.agents\skills\ace-skill\SKILL.md
+```
+
+Instruccion sugerida:
+
+```text
+A partir de ahora sigue las reglas del documento que te pegare como manual de trabajo.
+Si te pido generar un servicio IBM ACE, primero lee el manual completo y luego
+leelos los modulos internos de la carpeta de la skill antes de crear archivos.
+```
+
+Si la IA no puede leer archivos de tu disco, tendras que copiar tambien el contenido de los modulos que necesite, por ejemplo:
+
+```text
+generation-workflow/generation-workflow.md
+templates/templates.md
+templates/readme-eti-template.md
+validation-checklist/validation-checklist.md
+standards/standards.md
+```
+
+### 18.2 Opcion C: usar la skill desde un chat sin archivos
+
+En este caso la IA no tendra la carpeta. deberas pegarle las instrucciones y los documentos del servicio.
+
+Ejemplo de mensaje completo:
+
+```text
+Actua como desarrollador IBM ACE senior. Estas son mis reglas de trabajo:
+
+1. Necesito un SCI y un ETI. Si falta alguno, detenete e informa BLOQUEO.
+2. Elige la plantilla segun el encabezado del ETI:
+   - "# Componente IBS" usa la plantilla IBS.
+   - "# Componente API REST" usa la plantilla HUB.
+   - "# Componente Orquestador" usa la plantilla ORQ.
+3. No inventes datos, URLs, credenciales ni certificados.
+4. Genera el README tecnico global completo.
+5. Entrega checklist DoD, bloqueos, pendientes y tabla de trazabilidad.
+
+Aqui esta mi SCI:
+<pegar SCI>
+
+Aqui esta mi ETI:
+<pegar ETI>
+```
+
+### 18.3 Compatibilidad con otras IAs
+
+La skill esta escrita en Markdown, YAML, XML, JSON y ESQL, por lo que puede leerse en la mayoria de IAs.
+
+| Tipo de IA | Como usarla | Limitaciones |
+|---|---|---|
+| Agente con acceso a archivos | Copia la carpeta de skills | Debe poder crear archivos y ejecutar comandos |
+| Chat con carga de archivos | Sube `SKILL.md` y modulos | No podra clonar plantillas si no tiene red |
+| Chat sin archivos | Pega las reglas y el SCI/ETI | Sin validaciones automaticas |
+| IA sin escritura de archivos | Solo analisis y revision | No podra generar el proyecto |
+
+### 18.4 Requisitos para que la IA pueda seguir la skill
+
+- Poder leer archivos de texto.
+- Poder crear y editar archivos.
+- Poder ejecutar comandos si se validan scripts.
+- Tener acceso a internet para descargar las plantillas.
+- Respetar la instruccion de declarar BLOQUEO en vez de inventar.
+
+Si tu IA no cumple alguno de estos requisitos, informale que la skill no aplica del todo y acuerda manualmente que partes se cumpliran.
+
+### 18.5 Verificar que la otra IA Following the rules worked
+
+Pide a la otra IA que te confirme:
+
+```text
+Antes de empezar, enumera:
+1. Que archivos de la skill leiste.
+2. Que plantilla seleccionaste y por que.
+3. Que datos del SCI y ETI usaste.
+4. Que archivos generaste.
+5. Que pendientes quedan.
+```
+
+Si la respuesta no menciona la plantilla seleccionada, el README tecnico o el DoD, es probable que la IA no haya leido la skill completa.
+
+### 18.6 Instalar la skill en otro equipo
+
+Para compartir la skill con otra persona o equipo:
+
+1. Comprime la carpeta `ace-skill` completa.
+2. Enviala por el medio aprobado en tu organizacion.
+3. Indica que debe descomprimirse dentro de la carpeta de skills del agente.
+4. Verifica que exista el archivo `SKILL.md` en la ruta final.
+5. Pide una prueba generating un servicio pequeno.
+
+No se deben compartir certificados, llaves privadas ni credenciales junto con la skill.
