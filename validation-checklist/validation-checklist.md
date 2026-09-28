@@ -32,6 +32,8 @@ Un desarrollo generado es correcto solo si cumple TODOS estos criterios:
 - [ ] Los grupos (`complexType`) DFDL llevan `dfdl:lengthKind="implicit"` y sin `dfdl:length`; ningún grupo quedó con `lengthKind="explicit"` sin `length` (evita `CTDV1210E`).
 - [ ] `xmi:type` de nodos validado (trampa HTTP: `ComIbmWSInput/Reply`, no `ComIbmHTTP*`; subflow In/Out `eflow:FCMSource/FCMSink`).
 - [ ] `.msgflow`/`.subflow` bien formados XML/XMI (cabecera `ecore:EPackage`, `composition{nodes,connections}`, nsURI/nsPrefix correctos).
+- [ ] Todos los `xmi:id` de nodos y conexiones son únicos; cada `sourceNode`/`targetNode` y terminal existe y no hay conexiones duplicadas entre la misma pareja de terminales.
+- [ ] Cada referencia `esql://routine` resuelve a un módulo/routine presente en el ESQL físico o en una shared library declarada.
 - [ ] OpenAPI + `request.schema.json` consistentes con el contrato SCI/ETI (longitudes, regex, required).
 
 

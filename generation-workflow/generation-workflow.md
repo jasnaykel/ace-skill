@@ -88,6 +88,9 @@ Antes de declarar generado el desarrollo, comprobar de manera estática que no s
    - `OCCURS ... DEPENDING ON` y `OCCURS *` deben conservar la estrategia de ocurrencia variable del template; no convertirlos a `fixed` para silenciar el validador.
    - Todo grupo (`complexType`) lleva `dfdl:lengthKind="implicit"`; no asignar `dfdl:length` a un grupo (el default `lengthKind="explicit"` del formato dispara `CTDV1210E`).
 4. Asegurar que las estructuras de los archivos XML de los Message Flows y Subflows se generen de manera que su sintaxis e identificadores coincidan con la estructura lógica esperada.
+   - No ejecutar reemplazos globales sobre `xmi:id`, `sourceNode`, `targetNode` ni terminales. Cada nodo debe conservar un `xmi:id` único y toda conexión debe resolver exactamente a un nodo existente.
+   - Validar que no existan dos conexiones con la misma pareja `sourceNode/sourceTerminalName` y `targetNode/targetTerminalName`.
+   - Resolver cada `esql://routine/<schema>#<module>.<routine>` contra un ESQL físico del proyecto o de una shared library declarada; una referencia inexistente es bloqueante.
 5. Si un cambio falla, volver a la routine/XSD base de la plantilla, reaplicar el mapeo mínimo y volver a validar la estructura estática. No parchear los síntomas con casts, cambios de cardinalidad o statements incompletos.
 
 Sin inventar estructuras. Toda desviación → declararla.
