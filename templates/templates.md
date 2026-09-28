@@ -4,22 +4,24 @@
 Definir cómo usar el repositorio plantilla para generar desarrollos, qué contiene y cómo normalizarlo antes de reutilizarlo.
 
 ## Selección de plantilla
-El agente debe seleccionar exactamente una plantilla según el encabezado del `ETI.md`. La rama y el subdirectorio deben permanecer aislados; nunca combinar archivos entre `IBS` y `HUB`.
+El agente debe seleccionar exactamente una plantilla según el encabezado del `ETI.md`. La rama y el subdirectorio deben permanecer aislados; nunca combinar archivos entre `IBS`, `HUB` y `ORQ`.
 
 | Dominio | URL | Rama | Subdirectorio de plantilla |
 |---|---|---|---|
 | `IBS` | `https://github.com/Karinadr/plantillas-AI/tree/IBS/app213-payexe-prorev-core-upda-s-ops-ace` | `IBS` | `app213-payexe-prorev-core-upda-s-ops-ace` |
 | `HUB` | `https://github.com/Karinadr/plantillas-AI/tree/HUB/app213-payexe-prorev-hub-upda-s-ops-ace` | `HUB` | `app213-payexe-prorev-hub-upda-s-ops-ace` |
+| `ORQ` | `https://github.com/Karinadr/plantillas-AI/tree/ORQ/app213-payinfass-agrdeblis-retr-b-ops-ace` | `ORQ` | `app213-payinfass-agrdeblis-retr-b-ops-ace` |
 
 ### Encabezados selectores del ETI
 | Encabezado Markdown del ETI | Plantilla que debe utilizarse |
 |---|---|
 | `# Componente IBS` | Fila `IBS` de la matriz anterior |
 | `# Componente API REST` | Fila `HUB` de la matriz anterior |
+| `# Componente Orquestador` | Fila `ORQ` de la matriz anterior |
 
 No seleccionar por semejanza semántica ni por datos encontrados en otra sección. Si el encabezado no coincide exactamente después de normalizar espacios, detener el flujo con **BLOQUEO**.
 
-Para `IBS`, el servicio de referencia es el BUS atómico que consume el RPG `RE0058RI` mediante Backend Centralizado. Para `HUB`, no asumir contratos, backend, códigos ni convenciones IBS: leer el contenido real de la plantilla `HUB`.
+Para `IBS`, el servicio de referencia es el BUS atómico que consume el RPG `RE0058RI` mediante Backend Centralizado. Para `HUB`, no asumir contratos, backend, códigos ni convenciones IBS: leer el contenido real de la plantilla `HUB`. Para `ORQ`, la plantilla es de capa de negocio y coordina uno o más servicios atómicos; no debe sustituirse por una plantilla atómica IBS/HUB.
 
 ## Resolución de Plantilla (Git-First)
 Antes de iniciar la generación:
@@ -33,7 +35,7 @@ Antes de iniciar la generación:
    ```
 3. Resolver `<TEMPLATE_ROOT>` como `<TEMPLATE_REPO_ROOT>/<SUBDIRECTORIO_SELECCIONADO>` y analizar tanto el árbol del repositorio como el subdirectorio real.
 4. Registrar dominio, URL, rama, subdirectorio y commit utilizado. Todos los archivos y estructuras generados deben basarse con un 100% de fidelidad en `<TEMPLATE_ROOT>`. No inventar nombres de carpetas, de subflows ni de convenciones. No buscar archivos en otros workspaces o rutas fuera del clon de la plantilla seleccionada.
-5. Si el comando de verificación no encuentra el subdirectorio seleccionado, declarar **BLOQUEO** y solicitar que se publique la plantilla en esa rama. No sustituirla automáticamente por la plantilla histórica de IBS ni por archivos de otra rama.
+5. Si el comando de verificación no encuentra el subdirectorio seleccionado, declarar **BLOQUEO** y solicitar que se publique la plantilla en esa rama. No sustituirla automáticamente por la plantilla histórica de IBS, HUB u ORQ ni por archivos de otra rama.
 
 ## Repositorio técnico complementario
 La plantilla seleccionada se complementa con las guías técnicas de `ace-flowpilot`:

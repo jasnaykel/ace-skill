@@ -30,7 +30,7 @@ Ciclo de desarrollo de servicios IBM ACE desde la generación de plantilla hasta
 ## FASE 1 — Generación de plantilla seleccionada
 
 ### Fuente canónica
-La plantilla no se obtiene desde `Z:\Java` ni desde una copia local preexistente. Leer primero el encabezado del `ETI.md`: `# Componente IBS` selecciona `IBS` y `app213-payexe-prorev-core-upda-s-ops-ace`; `# Componente API REST` selecciona `HUB` y `app213-payexe-prorev-hub-upda-s-ops-ace`. Luego clonar la rama correspondiente:
+La plantilla no se obtiene desde `Z:\Java` ni desde una copia local preexistente. Leer primero el encabezado del `ETI.md`: `# Componente IBS` selecciona `IBS` y `app213-payexe-prorev-core-upda-s-ops-ace`; `# Componente API REST` selecciona `HUB` y `app213-payexe-prorev-hub-upda-s-ops-ace`; `# Componente Orquestador` selecciona `ORQ` y `app213-payinfass-agrdeblis-retr-b-ops-ace`. Luego clonar la rama correspondiente:
 
 ```cmd
 git clone --branch <BRANCH> --single-branch https://github.com/Karinadr/plantillas-AI.git <TEMPLATE_REPO_ROOT>

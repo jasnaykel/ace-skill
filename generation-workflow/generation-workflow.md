@@ -6,7 +6,7 @@ Procedimiento operativo para que la IA genere **desarrollo base** de un servicio
 ## Insumos obligatorios
 - `SCI.md` — Formato de Solicitud de Servicios (funcional): campos, reglas de negocio, consumidores, productor.
 - `ETI.md` — Especificación Técnica de Integración: mapeo de campos, transformaciones, contratos, endpoints, manejo de errores.
-- Plantilla remota seleccionada por dominio `IBS` o `HUB` (ver `templates/templates.md`).
+- Plantilla remota seleccionada por dominio `IBS`, `HUB` u `ORQ` (ver `templates/templates.md`).
 - Skills de soporte: módulos `service-dev`, `logging`, `framework-setup`, `delivery` de esta skill.
 
 > ⛔ Si falta un insumo → **BLOQUEO**. No continuar.
@@ -20,8 +20,9 @@ Determinar el dominio exclusivamente desde el encabezado del componente en `ETI.
 |---|---|---|---|
 | `# Componente IBS` | `IBS` | `IBS` | `app213-payexe-prorev-core-upda-s-ops-ace` |
 | `# Componente API REST` | `HUB` | `HUB` | `app213-payexe-prorev-hub-upda-s-ops-ace` |
+| `# Componente Orquestador` | `ORQ` | `ORQ` | `app213-payinfass-agrdeblis-retr-b-ops-ace` |
 
-La comparación se hace sobre encabezados Markdown normalizados únicamente en espacios. No inferir la plantilla desde el nombre del servicio, backend, endpoint, protocolo o contenido del `SCI.md`. Si falta el encabezado, no coincide, aparecen los dos encabezados o existen variantes no documentadas, declarar **BLOQUEO** y detener la generación.
+La comparación se hace sobre encabezados Markdown normalizados únicamente en espacios. No inferir la plantilla desde el nombre del servicio, backend, endpoint, protocolo, capa o contenido del `SCI.md`. Si falta el encabezado, no coincide, aparecen dos selectores o existen variantes no documentadas, declarar **BLOQUEO** y detener la generación.
 
 ```bash
 git clone --branch <BRANCH> --single-branch https://github.com/Karinadr/plantillas-AI.git <TEMPLATE_REPO_ROOT>
@@ -35,7 +36,7 @@ git -C <FLOWPILOT_ROOT> rev-parse --verify HEAD
 git -C <FLOWPILOT_ROOT> ls-tree -r --name-only HEAD
 ```
 
-Analizar el árbol del repositorio y de `<TEMPLATE_ROOT>` para localizar las capas `application`, `service`, configuración, `ci` y `test`. Si el subdirectorio seleccionado no existe en la rama seleccionada, declarar **BLOQUEO** y no usar una plantilla de otra rama. Analizar también `<FLOWPILOT_ROOT>` para localizar las guías reales aplicables, por ejemplo `skills/shared`, tipos de nodos, reglas de message flows, subflows y proyectos. Leer los archivos equivalentes antes de copiar o renombrar cualquier artefacto. Registrar encabezado selector, dominio, URL, rama, subdirectorio, commit y ruta temporal de ambos repositorios en el reporte. Si alguno no está disponible, declarar **BLOQUEO** para la parte dependiente y no usar una copia local alternativa.
+Analizar el árbol del repositorio y de `<TEMPLATE_ROOT>` para localizar las capas `application`, `service`, configuración, `ci` y `test`. Para `ORQ`, verificar además que la plantilla corresponda a capa de negocio (`-b`) y exponga flujos de coordinación de servicios atómicos. Si el subdirectorio seleccionado no existe en la rama seleccionada, declarar **BLOQUEO** y no usar una plantilla de otra rama. Analizar también `<FLOWPILOT_ROOT>` para localizar las guías reales aplicables, por ejemplo `skills/shared`, tipos de nodos, reglas de message flows, subflows y proyectos. Leer los archivos equivalentes antes de copiar o renombrar cualquier artefacto. Registrar encabezado selector, dominio, URL, rama, subdirectorio, commit y ruta temporal de ambos repositorios en el reporte. Si alguno no está disponible, declarar **BLOQUEO** para la parte dependiente y no usar una copia local alternativa.
 
 ## Paso 1 — Lectura y análisis
 Leer ambos documentos en su totalidad. Extraer en tablas:
@@ -113,9 +114,9 @@ Generar el README técnico basado en `templates/readme-eti-template.md` y entreg
 4. Escribir el resultado en la **raíz** del repositorio: `README.md`.
 5. Verificar que la primera línea tenga el formato `# <ID>_BUS_<NombreFuncionalSnake>` (sin emojis ni decoraciones adicionales) y que la sección 3 contenga la tabla de campos.
 
-6. Ejecutar el gate documental antes de validar/entregar: comprobar que existen las secciones 1 a 12, que no quedan placeholders `{{...}}`, que los valores corresponden al dominio seleccionado (`IBS` o `HUB`) y que el nombre de la collection Postman coincide con la primera línea.
+6. Ejecutar el gate documental antes de validar/entregar: comprobar que existen las secciones 1 a 12, que no quedan placeholders `{{...}}`, que los valores corresponden al dominio seleccionado (`IBS`, `HUB` u `ORQ`) y que el nombre de la collection Postman coincide con la primera línea.
 
-   Cuando esté disponible el workspace local, ejecutar `python <ACE_SKILL_ROOT>/scripts/validate_readme_eti.py --root <REPO_ROOT> --domain <IBS|HUB>` y conservar el resultado como evidencia. Si el script devuelve código distinto de cero, detener la entrega.
+   Cuando esté disponible el workspace local, ejecutar `python <ACE_SKILL_ROOT>/scripts/validate_readme_eti.py --root <REPO_ROOT> --domain <IBS|HUB|ORQ>` y conservar el resultado como evidencia. Si el script devuelve código distinto de cero, detener la entrega.
 
 > ⛔ Este README es un artefacto global del desarrollo, no una documentación opcional ni el README que venga dentro de la plantilla remota. Un README resumido, incompleto o heredado de otra operación es un **BLOQUEO DOCUMENTAL** y prohíbe declarar el servicio completo.
 

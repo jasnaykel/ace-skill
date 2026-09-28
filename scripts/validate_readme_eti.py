@@ -28,7 +28,7 @@ REQUIRED_SECTIONS = [
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", default=".")
-    parser.add_argument("--domain", choices=("IBS", "HUB"), required=True)
+    parser.add_argument("--domain", choices=("IBS", "HUB", "ORQ"), required=True)
     args = parser.parse_args()
 
     readme = Path(args.root) / "README.md"

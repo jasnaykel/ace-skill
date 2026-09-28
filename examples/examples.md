@@ -7,6 +7,7 @@ Casos de referencia verificados que la skill puede citar como ejemplos de patron
 - **SCIENTÍFICO:** SCI (`SCI_SRV_ReversarPagoIBS.md`) + ETI (`ETI_153_BUS_Reversar_Pago_IBS.md`). La consistencia SCI↔ETI se valida fuera de esta skill mediante el script externo.
 - **Implementación real (plantilla):** rama `IBS` del repositorio `https://github.com/Karinadr/plantillas-AI/tree/IBS`.
 - **Plantilla HUB:** rama `HUB`, subdirectorio `app213-payexe-prorev-hub-upda-s-ops-ace`; no reutilizar automáticamente contratos ni lógica específica de IBS.
+- **Plantilla ORQ:** rama `ORQ`, subdirectorio `app213-payinfass-agrdeblis-retr-b-ops-ace`; usarla únicamente cuando el ETI tenga el encabezado exacto `# Componente Orquestador`.
 
 ### Datos duros extraídos
 | Aspecto | Valor |

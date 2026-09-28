@@ -4,7 +4,7 @@
 Compendio de reglas transversales que cualquier desarrollo (generado o manual) debe cumplir.
 
 ## Reglas de desarrollo (fábrica)
-1. **Fidelidad a la plantilla seleccionada** (IBS o HUB): analizar el clon y conservar su estructura, subflows, módulos y convenciones; nunca mezclar ramas.
+1. **Fidelidad a la plantilla seleccionada** (IBS, HUB u ORQ): analizar el clon y conservar su estructura, subflows, módulos y convenciones; nunca mezclar ramas.
 2. **Consistencia SCI↔ETI delegada:** la validación y el reporte los produce el script externo; `ace-skill` solo consume el resultado si fue proporcionado.
 3. **Trazabilidad** (Regla 4): cada requisito → componente → ubicación (tabla).
 4. **Seguridad** (Regla 5): nada hardcodeado; políticas externas (ver `security/security.md`).
@@ -35,4 +35,4 @@ Compendio de reglas transversales que cualquier desarrollo (generado o manual) d
 
 ## Referencias finales
 - La validación SCI↔ETI se gestiona fuera de esta skill mediante el script externo definido por el equipo.
-- La plantilla seleccionada (`IBS` o `HUB`) y `ace-flowpilot` (`https://github.com/ot4i/ace-flowpilot/tree/main`) como fuentes remotas de verdad, cada una para su propósito.
+- La plantilla seleccionada (`IBS`, `HUB` u `ORQ`) y `ace-flowpilot` (`https://github.com/ot4i/ace-flowpilot/tree/main`) como fuentes remotas de verdad, cada una para su propósito.
