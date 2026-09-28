@@ -51,6 +51,8 @@ Una sola skill que convierte a la IA en un experto IBM App Connect Enterprise (A
 
 14. **Proyectos Eclipse obligatorios:** nunca entregar un desarrollo sin `.project` en `src/application/APP_<S>/`, `src/v1.0/service/<S>/` y en `src/v1.0/configuration/{DEV,QAS,PRD}/policyproject/PLP_<S>/`. La ausencia de cualquiera de los cinco archivos bloquea la entrega.
 
+15. **README técnico global obligatorio:** todo desarrollo generado, tanto `IBS` como `HUB`, debe contener en la raíz un `README.md` derivado de `templates/readme-eti-template.md`. Debe ser el ETI técnico completo del servicio, no un resumen ni el README de la plantilla. La ausencia del archivo, una plantilla incompleta, datos de otro dominio o una primera línea/nombre de colección inconsistente bloquean la entrega.
+
 ## Flujo abreviado del agente (SCI+ETI → desarrollo)
 
 1. Recibir `SCI.md` y `ETI.md` (si falta alguno → BLOQUEO).
@@ -60,8 +62,9 @@ Una sola skill que convierte a la IA en un experto IBM App Connect Enterprise (A
 5. Clonar y analizar la plantilla seleccionada y `ace-flowpilot`; registrar `<TEMPLATE_ROOT>`, `<FLOWPILOT_ROOT>`, ramas, subdirectorios, commits y árboles relevantes.
 6. Contrastar contra la plantilla seleccionada: copiar patrón fijo / renombrar `<Servicio>` / parametrizar contrato+PCML+políticas, usando `ace-flowpilot` solo como referencia técnica verificada.
 7. Generar el desarrollo base completo.
-8. Validar contra el DoD y construir la tabla de trazabilidad.
-9. Entregar resumen + piezas pendientes de configuración (políticas, wdo) y derivar a `delivery/delivery.md` si aplica entrega.
+8. Generar y validar el `README.md` técnico global antes de ejecutar el cierre: leer `templates/readme-eti-template.md`, reemplazar todos sus placeholders con datos del SCI/ETI y adaptar cualquier supuesto IBS que no corresponda a HUB. Verificar las secciones 1 a 12, la tabla de Información del Componente, BIAN, endpoints, backend, seguridad, auditoría y el historial.
+9. Validar contra el DoD y construir la tabla de trazabilidad. El gate falla si `README.md` no existe, conserva placeholders, contiene el negocio de la plantilla o no coincide con el servicio generado.
+10. Entregar resumen + piezas pendientes de configuración (políticas, wdo) y derivar a `delivery/delivery.md` si aplica entrega. Nunca declarar el desarrollo completo si falla el gate del README.
 
 ## Requisitos de salida
 
@@ -73,6 +76,19 @@ Una sola skill que convierte a la IA en un experto IBM App Connect Enterprise (A
 ## Revisión previa a entregar
 
 Aplicar `validation-checklist/validation-checklist.md`. Consultar `<FLOWPILOT_ROOT>` y sus rutas reales, especialmente `skills/shared/`, para detalles de `.msgflow`/`.esql`/proyectos/conectores cuando la tarea lo requiera.
+
+### Gate documental obligatorio
+
+Antes de responder al usuario, comprobar físicamente el archivo `README.md` en la raíz del repositorio generado:
+
+- Primera línea: `# <ID>_BUS_<NombreFuncionalSnake>`.
+- Secciones presentes: `## 1` hasta `# 12` del template ETI.
+- Tabla `## 3. Información del Componente` con `Línea de Producto`, `Producto`, nombre técnico y nombre funcional del ETI.
+- Endpoint BIAN, operación, backend y consumidores coincidentes con el ETI.
+- Sin placeholders `{{...}}`, texto de otra plantilla o supuestos IBS en un servicio HUB.
+- Nombre de la collection Postman y nombre de la operación coherentes con la primera línea.
+
+Si cualquier comprobación falla, reportar `BLOQUEO DOCUMENTAL` y no presentar la generación como completa.
 
 ## Historial de homologación (v1 → v2)
 

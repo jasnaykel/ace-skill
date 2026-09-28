@@ -51,6 +51,10 @@ Un desarrollo generado es correcto solo si cumple TODOS estos criterios:
 ### Documentación y pruebas
 - [ ] Encabezado descriptivo en cada componente generado.
 - [ ] Colección Postman por ambiente (éxito + escenarios de error).
+- [ ] `README.md` técnico global presente en la raíz, generado desde `templates/readme-eti-template.md`.
+- [ ] `README.md` contiene las secciones ETI 1 a 12 completas, sin placeholders ni contenido heredado de otra operación.
+- [ ] La primera línea de `README.md`, el nombre de la colección Postman y la operación principal son consistentes.
+- [ ] La tabla de Información del Componente contiene como mínimo línea de producto, producto, nombre funcional, nombre técnico y descripción.
 
 ## Checklist de revisión de artefactos (general, hereda de `ace-flowpilot`)
 - [ ] Tipo de proyecto correcto y metadatos Eclipse (`.project`, descriptores) exactos.

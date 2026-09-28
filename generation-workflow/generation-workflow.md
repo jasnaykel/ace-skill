@@ -97,7 +97,7 @@ Aplicar `validation-checklist/validation-checklist.md` de forma estática y cons
 ## Paso 6 — Entrega
 Resumen de lo generado, trazabilidad, piezas pendientes (políticas por ambiente, credenciales, URLs reales) y, si aplica, derivar a `ace-delivery` (F01, pipeline, Nexus, CP4I, correo).
 
-## Paso 7 — Generación del README.md (obligatorio)
+## Paso 7 — Generación y gate del README.md (obligatorio y bloqueante)
 Generar el README técnico basado en `templates/readme-eti-template.md` y entregarlo en la raíz del repositorio.
 
 **Acciones:**
@@ -112,6 +112,12 @@ Generar el README técnico basado en `templates/readme-eti-template.md` y entreg
 3. Rellenar los placeholders `{{...}}` del template con los datos extraídos.
 4. Escribir el resultado en la **raíz** del repositorio: `README.md`.
 5. Verificar que la primera línea tenga el formato `# <ID>_BUS_<NombreFuncionalSnake>` (sin emojis ni decoraciones adicionales) y que la sección 3 contenga la tabla de campos.
+
+6. Ejecutar el gate documental antes de validar/entregar: comprobar que existen las secciones 1 a 12, que no quedan placeholders `{{...}}`, que los valores corresponden al dominio seleccionado (`IBS` o `HUB`) y que el nombre de la collection Postman coincide con la primera línea.
+
+   Cuando esté disponible el workspace local, ejecutar `python <ACE_SKILL_ROOT>/scripts/validate_readme_eti.py --root <REPO_ROOT> --domain <IBS|HUB>` y conservar el resultado como evidencia. Si el script devuelve código distinto de cero, detener la entrega.
+
+> ⛔ Este README es un artefacto global del desarrollo, no una documentación opcional ni el README que venga dentro de la plantilla remota. Un README resumido, incompleto o heredado de otra operación es un **BLOQUEO DOCUMENTAL** y prohíbe declarar el servicio completo.
 
 > ⛔ Si falta algún dato obligatorio → ADVERTENCIA (usar defaults si existen en el template, si no, comentar).
 
