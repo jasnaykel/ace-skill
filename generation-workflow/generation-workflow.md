@@ -124,8 +124,11 @@ Generar el README técnico basado en `templates/readme-eti-template.md` y entreg
 
 ### 4.1.2 - Gate de proyectos y nombres canonicos
 
+El gate debe verificar literalmente estos cinco archivos: `src/application/APP_<S>/.project`, `src/v1.0/service/<S>/.project`, `src/v1.0/configuration/DEV/policyproject/PLP_<S>/.project`, `src/v1.0/configuration/QAS/policyproject/PLP_<S>/.project` y `src/v1.0/configuration/PRD/policyproject/PLP_<S>/.project`. Si falta uno, detener la entrega y corregir el scaffolding.
+
 Antes de entregar, validar obligatoriamente:
 
-1. Todos los ESQL usan `BROKER SCHEMA` con segmentos separados por punto; el schema declarado coincide con cada `esql://routine`.
+1. Todos los ESQL usan `BROKER SCHEMA` con segmentos separados por punto; el schema declarado coincide con cada `esql://routine`. La ruta física de cada ESQL debe reflejar exactamente esos segmentos: para `ace.esb.payexe.pro.hub.init.s` usar `ace/esb/payexe/pro/hub/init/s/`, tanto en `src/v1.0/service/<S>/` como en `src/application/APP_<S>/`. Una carpeta física compactada como `payexe_pro_hub_init_s` es inválida y bloquea la entrega.
+   Ejecutar además un escaneo global de residuos de esquema (por ejemplo `ace.esb.payexe.prorev.hub.upda.s`) en ESQL, msgflow, subflow y descriptores; cualquier coincidencia bloquea la entrega.
 2. `APP_<S>/.project` tiene `<projects>` con `LIB_CORE_CONTROL`, `LIB_CORE_COMMON` y `LIB_SMF_UTIL`; `application.descriptor` tiene las mismas referencias. No crear una carpeta fÃ­sica `Referenced Libraries` como sustituto.
 3. Cada policy project DEV, QAS y PRD tiene `.project`, `.settings/org.eclipse.core.resources.prefs` exacto y `policy.descriptor` vÃ¡lido.

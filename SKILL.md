@@ -49,6 +49,8 @@ Una sola skill que convierte a la IA en un experto IBM App Connect Enterprise (A
 12. **DFDL verificable:** el copybook/ETI define la cardinalidad. `occursCountKind="fixed"` exige `minOccurs == maxOccurs`; una ocurrencia variable no se convierte a fija para silenciar `CTDV1602E`. Los grupos (`complexType`) se declaran con `dfdl:lengthKind="implicit"` y sin `dfdl:length` (evita `CTDV1210E`, ya que el formato DFDL de referencia define `lengthKind="explicit"` por defecto).
 13. **Enfoque en Generación:** El propósito es generar código fuente estático y correcto basado en la plantilla de repositorio clonada. En servicios AS400/Mainframe, el XSD DFDL es obligatorio: conservar el XSD producido por ACE Toolkit o generarlo con `scripts/generate_cobol_dfdl_xsd.py` cuando el importador no pueda invocarse. La entrega queda bloqueada hasta realizar la validación DFDL disponible.
 
+14. **Proyectos Eclipse obligatorios:** nunca entregar un desarrollo sin `.project` en `src/application/APP_<S>/`, `src/v1.0/service/<S>/` y en `src/v1.0/configuration/{DEV,QAS,PRD}/policyproject/PLP_<S>/`. La ausencia de cualquiera de los cinco archivos bloquea la entrega.
+
 ## Flujo abreviado del agente (SCI+ETI → desarrollo)
 
 1. Recibir `SCI.md` y `ETI.md` (si falta alguno → BLOQUEO).
@@ -97,6 +99,10 @@ BROKER SCHEMA ace.esb.payexe.pro.hub.init.s
 ```
 
 Nunca colapsar el nombre a `ace.esb.payexe_pro_hub_init_s`. El mismo valor debe coincidir literalmente con el prefijo de todas las referencias `esql://routine/<schema>#...` en `.msgflow` y `.subflow`. Cualquier discrepancia bloquea la entrega.
+
+La regla aplica también a ESQL ubicado en `src/application/APP_<S>/`: la ruta física debe conservar los mismos segmentos lógicos, por ejemplo `ace/esb/payexe/pro/hub/init/s/`, y no `ace/esb/payexe_pro_hub_init_s/`. No se debe resolver el error cambiando el esquema correcto a una variante con guiones bajos; se corrige la carpeta física y todas las referencias del proyecto deben seguir usando literalmente `ace.esb.payexe.pro.hub.init.s`.
+
+Antes de entregar, escanear todos los artefactos del proyecto (`.esql`, `.msgflow`, `.subflow`, descriptores y configuración) y bloquear si aparece el esquema de la plantilla `ace.esb.payexe.prorev.hub.upda.s` o cualquier otro esquema que no corresponda al SCI/ETI. No basta con corregir solo `LIB_Constants.esql`.
 
 ### Referenced Libraries
 

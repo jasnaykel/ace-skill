@@ -66,6 +66,10 @@ Si algún criterio del DoD no se cumple o no puede verificarse, NO declarar el d
 
 ### Scaffolding adicional obligatorio
 
+- [ ] Existen los cinco `.project` requeridos: `src/application/APP_<S>/.project`, `src/v1.0/service/<S>/.project` y los tres policy projects DEV/QAS/PRD en sus rutas canónicas.
+
 - [ ] `BROKER SCHEMA` usa segmentos separados por punto y coincide con todas las referencias `esql://routine`; no se admite el formato unido con guiones bajos.
+- [ ] La ruta física de cada ESQL coincide con el esquema lógico: `ace.esb.payexe.pro.hub.init.s` exige `ace/esb/payexe/pro/hub/init/s/`, incluida la capa `src/application/APP_<S>/`; no existe `ace/esb/payexe_pro_hub_init_s/`.
+- [ ] No existe ningún `BROKER SCHEMA` ni referencia `esql://routine` heredada de otra plantilla (incluido `ace.esb.payexe.prorev.hub.upda.s`); el escaneo se realiza sobre todo el proyecto.
 - [ ] `APP_<S>/.project` contiene `<projects>` para `LIB_CORE_CONTROL`, `LIB_CORE_COMMON` y `LIB_SMF_UTIL`, y `application.descriptor` contiene las referencias compartidas; el Toolkit muestra `Referenced Libraries` como contenedor lÃ³gico.
 - [ ] Cada policy project en DEV, QAS y PRD contiene `.project`, `.settings/org.eclipse.core.resources.prefs` y `policy.descriptor` vÃ¡lidos.
