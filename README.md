@@ -1,1 +1,527 @@
 # ace-skill
+
+## Guia para principiantes
+
+Esta guia explica que es `ace-skill`, para que sirve y como utilizarla aunque no tengas conocimientos de informatica, IBM ACE o inteligencia artificial.
+
+---
+
+## 1. Que es ace-skill
+
+`ace-skill` es un conjunto de instrucciones para que la IA pueda actuar como desarrollador de integraciones IBM App Connect Enterprise.
+
+La skill le indica a la IA:
+
+- Como leer los documentos funcionales y tecnicos de un servicio.
+- Como elegir la plantilla correcta del servicio.
+- Como crear flujos de integracion, contratos, transformaciones y configuraciones.
+- Como aplicar seguridad, auditoria, manejo de errores y logging.
+- Como crear pruebas Postman.
+- Como validar que la estructura generada sea compatible con IBM ACE.
+- Como documentar el servicio en un README tecnico.
+
+En palabras simples: la skill es un manual de trabajo que la IA consulta para construir un servicio ACE siguiendo el estandar de la fabrica de integraciones.
+
+La skill no es IBM ACE, no es un servidor y no reemplaza IBM ACE Toolkit. La skill genera y valida archivos; la compilacion y el despliegue final deben realizarse en el entorno ACE correspondiente.
+
+---
+
+## 2. Que es IBM ACE
+
+IBM App Connect Enterprise, conocido como IBM ACE, es una plataforma que conecta sistemas diferentes.
+
+Por ejemplo, un servicio ACE puede:
+
+1. Recibir una solicitud de una aplicacion movil.
+2. Validar los datos recibidos.
+3. Transformar JSON a SOAP, XML o una estructura de backend.
+4. Invocar un sistema bancario.
+5. Transformar la respuesta.
+6. Devolver una respuesta al consumidor.
+7. Registrar auditoria y errores.
+
+La skill ayuda a generar los archivos que representan ese proceso.
+
+---
+
+## 3. Que puede hacer la skill
+
+La skill puede ayudar a:
+
+- Generar un desarrollo base desde documentos SCI y ETI.
+- Crear servicios atomicos de IBS.
+- Crear servicios atomicos de HUB.
+- Crear servicios orquestadores de negocio.
+- Crear o modificar flujos ACE.
+- Crear archivos ESQL.
+- Crear contratos OpenAPI y JSON Schema.
+- Crear subflows y handlers de error.
+- Crear configuraciones DEV, QAS y PRD.
+- Crear policies de usuario y Active Directory.
+- Crear workdir overrides.
+- Crear colecciones Postman.
+- Revisar la estructura de un servicio existente.
+- Detectar que faltan archivos o configuraciones.
+- Preparar una entrega para Toolkit, pipeline o despliegue.
+
+---
+
+## 4. Que no hace automaticamente
+
+La skill no debe considerarse un boton de despliegue automatico.
+
+Por seguridad y control, la IA no debe:
+
+- Inventar datos que no esten en el SCI, ETI o plantilla.
+- Inventar credenciales.
+- Inventar certificados.
+- Inventar contrasenas LDAP.
+- Publicar servicios en produccion sin autorizacion.
+- Compilar realmente en ACE Toolkit si no tiene ese entorno disponible.
+- Reemplazar archivos del framework compartido sin autorizacion.
+- Usar una plantilla IBS para un servicio HUB.
+- Usar una plantilla atomica para un servicio orquestador.
+
+Cuando falte informacion importante, la respuesta correcta es `BLOQUEO` o `PENDIENTE`, no una suposicion.
+
+---
+
+## 5. Archivos que necesitas entregar
+
+Para generar un servicio desde cero normalmente necesitas dos documentos.
+
+### SCI
+
+El SCI describe **que necesita el negocio**.
+
+Suele contener:
+
+- Nombre funcional.
+- Tipo de componente.
+- Capa del servicio.
+- Consumidores.
+- Productor o backend.
+- Campos de entrada.
+- Campos de salida.
+- Campos obligatorios.
+- Reglas de negocio.
+- Ejemplos.
+
+Ejemplo de nombre:
+
+```text
+SCI_BUS_Pagar_Recaudacion_HUB.md
+```
+
+### ETI
+
+El ETI describe **como debe construirse tecnicamente** el servicio.
+
+Suele contener:
+
+- Nombre tecnico.
+- Ruta BIAN.
+- Metodo HTTP.
+- Headers.
+- Request y response.
+- Mapeo hacia el backend.
+- Endpoints por ambiente.
+- Timeout.
+- Seguridad.
+- Auditoria.
+- Manejo de errores.
+- Informacion de despliegue.
+
+Ejemplo de nombre:
+
+```text
+ETI_162_BUS_Pagar_Recaudacion_HUB.md
+```
+
+Si falta el SCI o el ETI, la generacion debe detenerse.
+
+---
+
+## 6. Como se elige la plantilla
+
+La eleccion se realiza usando un encabezado exacto dentro del ETI. No se debe elegir por intuicion, nombre del backend o nombre de la carpeta.
+
+### Servicio atomico IBS
+
+El ETI debe contener:
+
+```markdown
+# Componente IBS
+```
+
+La skill usa:
+
+```text
+Rama: IBS
+Plantilla: app213-payexe-prorev-core-upda-s-ops-ace
+```
+
+### Servicio atomico HUB
+
+El ETI debe contener:
+
+```markdown
+# Componente API REST
+```
+
+La skill usa:
+
+```text
+Rama: HUB
+Plantilla: app213-payexe-prorev-hub-upda-s-ops-ace
+```
+
+### Servicio orquestador
+
+El ETI debe contener:
+
+```markdown
+# Componente Orquestador
+```
+
+La skill usa:
+
+```text
+Rama: ORQ
+Plantilla: app213-payinfass-agrdeblis-retr-b-ops-ace
+```
+
+Un orquestador normalmente coordina uno o mas servicios atomicos. Por ejemplo, puede validar una solicitud, consultar un servicio IBS, decidir una ruta e invocar despues un servicio HUB.
+
+Si el encabezado no existe o es ambiguo, la skill debe informar `BLOQUEO` y solicitar que se corrija el ETI.
+
+---
+
+## 7. Como pedir una generacion
+
+No necesitas escribir codigo. Debes indicar a la IA donde estan los documentos y que deseas generar.
+
+### Prompt recomendado
+
+```text
+Usando la skill ace-skill, genera el desarrollo base completo del servicio.
+
+SCI:
+D:\ruta\SCI_Servicio.md
+
+ETI:
+D:\ruta\ETI_Servicio.md
+
+Genera los archivos en:
+D:\ruta\mi-proyecto
+
+No inventes datos. Si falta informacion, declara BLOQUEO.
+Valida la estructura, crea el README tecnico global y entrega la tabla de trazabilidad.
+```
+
+### Si los documentos estan en Downloads
+
+```text
+Usando ace-skill, desarrolla el servicio utilizando:
+
+SCI: C:\Users\<usuario>\Downloads\SCI_Servicio.md
+ETI: C:\Users\<usuario>\Downloads\ETI_Servicio.md
+
+Genera el proyecto en:
+D:\jasna\Trabajo\Trabajo IBM\Azure\IA IBM\mi-servicio
+```
+
+### Si ya existe un proyecto
+
+```text
+Usando ace-skill, revisa y completa este proyecto:
+
+D:\ruta\proyecto-ace
+
+Usa como referencia:
+SCI: D:\ruta\SCI.md
+ETI: D:\ruta\ETI.md
+
+No borres cambios existentes. Indica que archivos modificas y valida el resultado.
+```
+
+### Para generar solo documentacion
+
+```text
+Usando ace-skill, genera o completa el README tecnico global del servicio a partir de:
+
+SCI: D:\ruta\SCI.md
+ETI: D:\ruta\ETI.md
+
+No modifiques codigo ni configuraciones.
+```
+
+---
+
+## 8. Que ocurre durante la generacion
+
+La IA debe seguir este proceso:
+
+1. Leer el SCI y el ETI completos.
+2. Revisar que ambos documentos existan.
+3. Leer el encabezado selector del ETI.
+4. Seleccionar IBS, HUB u ORQ.
+5. Descargar o clonar la plantilla remota correcta.
+6. Revisar el contenido real de la plantilla.
+7. Revisar las guias tecnicas de `ace-flowpilot` cuando sean necesarias.
+8. Construir el proyecto sin mezclar plantillas.
+9. Parametrizar nombres, rutas, contratos y configuraciones.
+10. Crear los flujos y subflows.
+11. Crear los archivos ESQL permitidos.
+12. Crear policies y configuraciones por ambiente.
+13. Crear la coleccion Postman.
+14. Crear el README tecnico global.
+15. Ejecutar validaciones estaticas.
+16. Entregar un resumen, pendientes, bloqueos y trazabilidad.
+
+---
+
+## 9. Estructura de salida esperada
+
+Un servicio ACE normalmente contiene una estructura similar a esta:
+
+```text
+mi-servicio/
+  README.md
+  azure-pipelines.yml
+  ci/
+    valid_cfg_values.yaml
+    Monitoring.json
+  src/
+    application/
+      APP_<Servicio>/
+    v1.0/
+      service/
+        <Servicio>/
+      configuration/
+        DEV/
+        QAS/
+        PRD/
+  test/
+    <Servicio>.postman_collection.json
+```
+
+Los nombres exactos dependen de la plantilla seleccionada. La skill no debe inventar una estructura diferente si la plantilla ya define una.
+
+---
+
+## 10. Ambientes
+
+Los servicios normalmente tienen tres ambientes:
+
+| Ambiente | Significado |
+|---|---|
+| DEV | Desarrollo |
+| QAS | Certificacion o pruebas |
+| PRD | Produccion |
+
+Cada ambiente puede tener valores diferentes para:
+
+- URL del backend.
+- Timeout.
+- Grupo LDAP.
+- Certificados.
+- Policies.
+- Cantidad de instancias.
+- Rutas de entrada.
+
+Las credenciales, tokens y certificados no deben guardarse directamente en el codigo fuente.
+
+---
+
+## 11. Archivos importantes
+
+### ESQL
+
+Los archivos `.esql` contienen logica de transformacion, validacion, preparacion de requests y construccion de respuestas.
+
+No se deben modificar las librerias compartidas `LIB_CORE_*` ni `LIB_SMF_*`.
+
+### Message flow
+
+Los archivos `.msgflow` representan el flujo principal de mensajes.
+
+### Subflow
+
+Los archivos `.subflow` representan bloques reutilizables, como:
+
+- Validacion.
+- HealthCheck.
+- Respuesta valida.
+- Manejo de Catch.
+- Manejo de Failure.
+- Manejo de Timeout.
+
+### Policy
+
+Las policies contienen configuraciones externas al codigo, como destinos y grupos de seguridad.
+
+### WDO
+
+Los archivos `wdo-*.txt` permiten sobrescribir valores del flujo por ambiente.
+
+### Postman
+
+La coleccion Postman permite probar el servicio con solicitudes de exito y error.
+
+### README tecnico
+
+El `README.md` de la raiz debe ser el documento ETI tecnico completo del servicio. No debe ser un README corto de marketing ni el README heredado de otra plantilla.
+
+---
+
+## 12. Que significa un BLOQUEO
+
+`BLOQUEO` significa que la IA no debe continuar porque falta informacion necesaria o existe una contradiccion.
+
+Ejemplos:
+
+- Falta el SCI.
+- Falta el ETI.
+- El ETI no tiene encabezado selector.
+- La plantilla ORQ no existe en la rama indicada.
+- El backend no esta definido.
+- Falta el contrato de entrada o salida.
+- Falta el mapeo de campos.
+- La plantilla no contiene la estructura necesaria.
+- Faltan `.project` obligatorios.
+- El README tecnico global esta incompleto.
+
+Cuando aparezca un bloqueo, debes proporcionar la informacion solicitada y volver a ejecutar la generacion.
+
+---
+
+## 13. Como interpretar la respuesta de la IA
+
+Una respuesta correcta debe indicar:
+
+### Generado
+
+Archivos y carpetas que fueron creados o modificados.
+
+### Validado
+
+Comprobaciones que se ejecutaron, por ejemplo:
+
+- JSON valido.
+- XML valido.
+- Rutas correctas.
+- Nombres coherentes.
+- Policies presentes.
+- README presente.
+
+### Pendiente
+
+Acciones que necesitan ACE Toolkit, certificados, credenciales, datos de infraestructura o aprobacion.
+
+### Bloqueos
+
+Problemas que impiden continuar.
+
+### Trazabilidad
+
+Tabla que relaciona cada requisito del SCI/ETI con el archivo que lo implementa.
+
+---
+
+## 14. Validacion del README tecnico
+
+La skill incluye un validador para comprobar el README global:
+
+```text
+C:\Users\%USERNAME%\.agents\skills\ace-skill\scripts\validate_readme_eti.py
+```
+
+Uso para IBS:
+
+```powershell
+python C:\Users\%USERNAME%\.agents\skills\ace-skill\scripts\validate_readme_eti.py --root D:\ruta\proyecto --domain IBS
+```
+
+Uso para HUB:
+
+```powershell
+python C:\Users\%USERNAME%\.agents\skills\ace-skill\scripts\validate_readme_eti.py --root D:\ruta\proyecto --domain HUB
+```
+
+Uso para ORQ:
+
+```powershell
+python C:\Users\%USERNAME%\.agents\skills\ace-skill\scripts\validate_readme_eti.py --root D:\ruta\proyecto --domain ORQ
+```
+
+El validador comprueba que:
+
+- Exista `README.md` en la raiz.
+- La primera linea tenga el formato correcto.
+- Existan las secciones ETI principales.
+- No queden placeholders.
+- Existan datos del componente.
+- No se use por error el productor IBS por defecto en un servicio HUB.
+
+---
+
+## 15. Recomendaciones para trabajar con la IA
+
+- Indica siempre las rutas completas de los archivos.
+- Di claramente si quieres generar, revisar, corregir o documentar.
+- Pide que no se inventen datos.
+- Pide que se informen los bloqueos antes de continuar.
+- Conserva los documentos SCI y ETI junto con el proyecto.
+- No compartas contrasenas ni certificados privados en el chat.
+- Revisa los pendientes antes de solicitar un despliegue.
+- Para cambios grandes, pide primero un analisis y despues la implementacion.
+
+---
+
+## 16. Ejemplos de solicitudes frecuentes
+
+### Revisar un proyecto
+
+```text
+Usando ace-skill, revisa la sanidad estructural de D:\ruta\proyecto-ace.
+No modifiques archivos. Reporta errores, riesgos y pendientes.
+```
+
+### Completar configuracion
+
+```text
+Usando ace-skill, desarrollame el siguiente servicio , se le pasa el documento ETI Y SCI.
+```
+
+### Preparar pruebas
+
+```text
+Usando ace-skill, revisa y completa la coleccion Postman del servicio D:\ruta\proyecto-ace.
+Incluye escenarios exitosos y errores de validacion.
+```
+
+### Preparar entrega
+
+```text
+Usando ace-skill, prepara el reporte de entrega del servicio D:\ruta\proyecto-ace.
+Incluye checklist DoD, bloqueos, pendientes y tabla de trazabilidad.
+```
+
+---
+
+## 17. Ubicacion de la skill
+
+La skill instalada se encuentra en:
+
+```text
+C:\Users\%USERNAME%\.agents\skills\ace-skill
+```
+
+El archivo principal de instrucciones es:
+
+```text
+C:\Users\%USERNAME%\.agents\skills\ace-skill\SKILL.md
+```
+
+Este README es una guia para la persona usuaria. `SKILL.md` contiene las reglas internas que debe seguir la IA.
