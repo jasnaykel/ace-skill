@@ -87,6 +87,7 @@ def manifiesto(contrato: dict) -> dict:
             "subdirectorio": contrato["plantilla"].get("subdirectorio", ""),
             "resolucion": "rama",
         },
+        "raiz_proyecto": to_legacy_parameters(contrato)["raiz_proyecto"],
         "clases": {
             "copiar_sin_modificar": sorted(k for k, v in comun.items() if v == "copiar_sin_modificar"),
             "parametrizar": sorted(k for k, v in comun.items() if v == "parametrizar"),

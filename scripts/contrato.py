@@ -207,11 +207,27 @@ def _validar_operaciones(contract: dict[str, Any]) -> None:
 
 def to_openapi(contract: dict[str, Any]) -> dict[str, Any]:
     """
-    Proyecta el contrato a OpenAPI 3.0.3.
+    Proyecta el contrato a OpenAPI 3.0.0.
 
-    Una sola stanza `servers`: el builder de REST API del Toolkit rechaza varias
-    vias base distintas, y los canales mTLS/onprem son detalle de los nodos
-    WSInput del msgflow, no del OpenAPI.
+    Tres restricciones del importador REST de ACE Toolkit, respetadas aqui para
+    no repetir el fallo "The file is not a valid OpenAPI 3 or Swagger 2.0
+    document: java.lang.NullPointerException" (REST API Definitions Problem):
+
+    1. Una sola stanza `servers`. El builder rechaza varias vias base distintas.
+    2. SIN `components.securitySchemes`. `type: mutualTLS` es valido en OpenAPI
+       3.1, NO en 3.0.x, y el importador de ACE 12 falla con NullPointerException
+       en lugar de un error legible. El mTLS se configura en los nodos WSInput
+       del msgflow y en la politica de seguridad, nunca en el OpenAPI.
+    3. SIN `Content-Type` ni `Accept` como `parameters`. Son cabeceras reservadas
+       que ACE deriva del `requestBody`; declararlas como parameter rompe la
+       generacion del mensaje y es otra causa de NullPointerException.
+
+    Y una de fidelidad a la plantilla (`templates.md`): la via base completa
+    vive en `servers[0].url` y las operaciones cuelgan de `/` y `/health`, no
+    de un path propio. Un contrato puede declarar la accion en
+    `exposicion.operaciones[].path` (`/initiate`) o ya dentro de `base_path`
+    (`.../initiate`); en ambos casos el resultado es el mismo, porque el
+    segmento de accion se pliega a la via base antes de construir el path.
     """
     validate_contract(contract, check_files=False)
     exposure = contract["exposicion"]
@@ -219,6 +235,12 @@ def to_openapi(contract: dict[str, Any]) -> dict[str, Any]:
 
     headers_request = _headers_nombres(contract.get("headers"))
     esquemas = _esquemas_campos(contract)
+
+    # La via basePublished es la ruta completa. El contrato puede traer el
+    # segmento de accion en `operaciones[].path` o ya dentro de `base_path`;
+    # se pliega aqui una sola vez para que el OpenAPI no dependa de cual de las
+    # dos convenciones uso quien redacto el contrato.
+    base_publicada = _via_base_publicada(exposure)
 
     paths: dict[str, Any] = {}
     for operacion in exposure["operaciones"]:
@@ -249,16 +271,32 @@ def to_openapi(contract: dict[str, Any]) -> dict[str, Any]:
                 "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}},
             }
         cuerpo["responses"] = respuestas
-        paths.setdefault(operacion["path"], {})[metodo] = cuerpo
+        # Todas las operaciones cuelgan de `/`: la plantilla expone una sola
+        # via base y el action term va dentro de ella, no en el path.
+        if "/" in paths:
+            raise ContractError(
+                "Mas de una operacion no cabe bajo el path '/': la plantilla "
+                "expone una sola via base por documento OpenAPI"
+            )
+        paths["/"] = {metodo: cuerpo}
+
+    if paths:
+        paths["/health"] = {
+            "get": {
+                "summary": "Valida que el servicio este operativo",
+                "operationId": "HealthCheck",
+                "responses": {"200": {"description": "success"}},
+            }
+        }
 
     documento: dict[str, Any] = {
-        "openapi": "3.0.3",
+        "openapi": "3.0.0",
         "info": {
             "title": componente["nombre_funcional"],
             "version": str(contrato_version(contract)),
             "description": componente.get("nombre_tecnico") or componente["nombre_funcional"],
         },
-        "servers": [{"url": exposure["base_path"]}],
+        "servers": [{"url": base_publicada}],
         "paths": paths,
     }
 
@@ -267,9 +305,6 @@ def to_openapi(contract: dict[str, Any]) -> dict[str, Any]:
         components["parameters"] = {nombre: _parametro_header(header) for nombre, header in headers_request}
     if esquemas:
         components["schemas"] = esquemas
-    if exposure.get("seguridad_externa") == "mtls":
-        components["securitySchemes"] = {"MutualTLS": {"type": "mutualTLS"}}
-        documento["security"] = [{"MutualTLS": []}]
     if components:
         documento["components"] = components
     return documento
@@ -319,10 +354,20 @@ def contrato_version(contract: dict[str, Any]) -> str:
     return "1.0.0"
 
 
+# Cabeceras reservadas: ACE las deriva del requestBody/responseBody. Declararlas
+# como `parameters` en el OpenAPI hace que el importador REST de ACE 12 falle con
+# NullPointerException. Se validan, pero no se publican en el OpenAPI.
+HEADERS_RESERVADOS = {"content-type", "accept", "authorization"}
+
+
 def _headers_nombres(headers: dict[str, Any] | None) -> list[tuple[str, dict]]:
     if not headers:
         return []
-    return [(h["nombre"], h) for h in headers.get("request") or []]
+    return [
+        (h["nombre"], h)
+        for h in headers.get("request") or []
+        if str(h.get("nombre", "")).strip().lower() not in HEADERS_RESERVADOS
+    ]
 
 
 def _parametro_header(header: dict[str, Any]) -> dict[str, Any]:
@@ -359,6 +404,25 @@ def _parametro_header(header: dict[str, Any]) -> dict[str, Any]:
 def _parece_regex(valor: str) -> bool:
     """Un regex lleva metacaracteres; un valor literal como application/json no."""
     return bool(re.search(r"[\^\$\(\)\[\]\{\}\*\+\?\|\\]", valor))
+
+
+def _via_base_publicada(exposure: dict[str, Any]) -> str:
+    """
+    Ruta completa que se publica en `servers[0].url`.
+
+    El contrato puede escribir el action term en dos sitios y ambas formas son
+    validas: en `base_path` (`.../collection/initiate`) o en la operacion
+    (`base_path: .../collection` + `path: /initiate`). Lo unico que no vale es
+    escribirlo en los dos, que produce `.../initiate/initiate` y una via que no
+    existe. Por eso se concatenan y luego se rechaza el segmento repetido.
+    """
+    base = str(exposure.get("base_path") or "").strip("/")
+    segmentos = [s for s in base.split("/") if s]
+    for operacion in exposure.get("operaciones") or []:
+        accion = str(operacion.get("path") or "").strip("/")
+        if accion and accion not in segmentos:
+            segmentos.append(accion)
+    return "/" + "/".join(segmentos)
 
 
 def _cuerpo_seccion(contract: dict[str, Any], seccion: str) -> dict:
@@ -467,6 +531,30 @@ def _escala_decimal(longitud: Any) -> int | None:
 
 # ── proyeccion a los parametros actuales de la skill ─────────────────────────
 
+def _raiz_proyecto(contract: dict[str, Any]) -> str:
+    """
+    Nombre de la carpeta raiz del repositorio generado.
+
+    No es `componente.nombre_servicio`: ese es el nombre del artefacto ACE
+    (`PayMan_AgrDeb_Coll_Init_B`), y usarlo como carpeta produce un arbol que no
+    se parece a ningun repositorio de la organizacion. La carpeta raiz lleva el
+    nombre del repositorio, que viene del ETI (seccion "Repositorio de fuentes").
+
+    Sin `componente.nombre_repo` se cae al subdirectorio de la plantilla: es
+    mejor un nombre de repositorio corporativo que el nombre de un artefacto.
+    """
+    declarado = str((contract.get("componente") or {}).get("nombre_repo") or "").strip()
+    if declarado:
+        return declarado
+    subdirectorio = str((contract.get("plantilla") or {}).get("subdirectorio") or "").strip("/")
+    if subdirectorio:
+        return subdirectorio.split("/")[-1]
+    raise ContractError(
+        "No se puede derivar la carpeta raiz del repositorio: declara "
+        "componente.nombre_repo (ETI seccion 'Repositorio de fuentes')"
+    )
+
+
 def to_legacy_parameters(contract: dict[str, Any]) -> dict[str, Any]:
     """
     Traduce el contrato a los nombres que la skill ya usa.
@@ -487,13 +575,16 @@ def to_legacy_parameters(contract: dict[str, Any]) -> dict[str, Any]:
 
     base = str(exposure.get("base_path") or "").strip("/")
     path = str(operacion.get("path") or "").strip("/")
-    ruta = "/".join(parte for parte in (base, path) if parte)
+    # Sin barra inicial: `ruta_servicio` es una clave legacy que otros pasos de
+    # la skill consumen tal cual, y historicamente no la llevaba.
+    ruta = _via_base_publicada(exposure).lstrip("/")
 
     servicio = componente.get("nombre_servicio") or componente.get("nombre_tecnico")
     if not servicio:
         raise ContractError("El contrato no define componente.nombre_servicio")
 
     return {
+        "raiz_proyecto": _raiz_proyecto(contract),
         "servicio": servicio,
         "nombre_funcional": componente.get("nombre_funcional", ""),
         "ruta_servicio": ruta,

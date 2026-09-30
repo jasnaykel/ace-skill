@@ -18,6 +18,7 @@
         "nombre_tecnico": { "type": "string" },
         "nombre_servicio": { "type": "string", "minLength": 1 },
         "nombre_funcional": { "type": "string", "minLength": 1 },
+        "nombre_repo": { "type": "string", "minLength": 1 },
         "requerimiento": { "type": ["string", "number"] },
         "capa": { "type": "string" },
         "producto": { "type": "string" },

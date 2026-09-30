@@ -64,6 +64,14 @@ for p in sorted(glob.glob(os.path.join(ROOT, "src", "**", "*.yaml"), recursive=T
         fail(rel + ": root is not a mapping"); continue
     if d.get("openapi") != "3.0.0":
         fail(rel + ": openapi != 3.0.0 (%r)" % d.get("openapi"))
+    if "securitySchemes" in (d.get("components") or {}):
+        fail(rel + ": components.securitySchemes presente — el importador REST de ACE 12 "
+                   "falla con NullPointerException ante `type: mutualTLS`; el mTLS va en los "
+                   "nodos WSInput del msgflow y en la politica, nunca en el OpenAPI")
+    for prm in ((d.get("components") or {}).get("parameters") or {}).values():
+        if str((prm or {}).get("name", "")).strip().lower() in ("content-type", "accept", "authorization"):
+            fail(rel + ": components.parameters declara la cabecera reservada %r — "
+                       "ACE la deriva del requestBody" % (prm or {}).get("name"))
     if "components" not in d:
         fail(rel + ": 'components' is NOT at root level (keys=%s)" % list(d.keys()))
     if "components" in d.get("paths", {}):
@@ -226,11 +234,19 @@ if rootel.tagName != "ns2:restapiDescriptor":
     fail("restapi.descriptor: root element is %r, expected 'ns2:restapiDescriptor'" % rootel.tagName)
 else:
     ok("root element is ns2:restapiDescriptor (namespace %s)" % rootel.namespaceURI)
-for a, v in [("definitionType", "openapi_3"), ("faultFormat", "JSON"), ("https", "false")]:
+for a, v in [("definitionType", "openapi_3"), ("faultFormat", "JSON")]:
     if rootel.getAttribute(a) != v:
         fail("restapi.descriptor: @%s=%r expected %r" % (a, rootel.getAttribute(a), v))
     else:
         ok("@%s=%s" % (a, v))
+# `https` NO se fija a un valor: lo decide la plantilla del dominio y no es el
+# mismo en todas. IBS y ORQ publican https="true"; HUB publica https="false".
+# Fijarlo aqui obligaba a contradecir a la plantilla para pasar el gate.
+_https = rootel.getAttribute("https")
+if _https in ("true", "false"):
+    ok("@https=%s (valor de la plantilla del dominio)" % _https)
+else:
+    fail("restapi.descriptor: @https=%r debe ser 'true' o 'false'" % _https)
 dfile = rootel.getAttribute("definitionFile"); impl = rootel.getAttribute("implementation")
 base = os.path.dirname(rd)
 for label, val in [("definitionFile", dfile), ("implementation", impl)]:

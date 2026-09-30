@@ -121,6 +121,18 @@ para medir cuántos bloqueantes da antes de que bloqueen.
 
 ### 4.0.1 — Paso 4 sin modo (compartido por los dos)
 
+**Carpeta raíz del repositorio.** El árbol se genera en una carpeta llamada
+`raiz_proyecto`, que es el **nombre del repositorio de la organización**, tomado de
+la sección "Repositorio de fuentes" del ETI (p. ej. `app213-payman-agrdeb-coll-init-b-ops-ace`).
+
+⛔ **No** usar `componente.nombre_servicio` (`PayMan_AgrDeb_Coll_Init_B`) como nombre
+de carpeta: ese es el nombre del artefacto ACE, no del repositorio, y produce un
+árbol que no se parece a ningún repositorio de la plantilla. En modo contrato el
+nombre llega ya resuelto en `paquete/parametros.json.raiz_proyecto` y
+`paquete/artefactos.yaml.raiz_proyecto`; no volver a derivarlo. La raíz **no** es el
+nombre del subdirectorio de la plantilla: ese es el repositorio de la plantilla, que
+se clona aparte como `<TEMPLATE_ROOT>`.
+
 Generar el desarrollo base completo:
 1. `src/application/APP_<S>/` (fachada mTLS+Onprem): **`<S>.yaml` (OpenAPI de la fachada: UNA stanza `servers` con vía base `/v1.0/s/...` + schemas del contrato; los canales mTLS/onprem SOLO como descripción)** + **`.project`** + `application.descriptor` + **`MF_<S>.msgflow` generado como XMI** (`message-flows/message-flows.md`).
 2. `src/v1.0/service/<S>/` (contrato + **`.project`** + **`gen/<S>.msgflow` + subflows generados como XMI** + DFDL/PCML (`IBMdefined/`, `importFiles/`, `log/`, **`<PCML>.xsd`**) + ESQL por capas).

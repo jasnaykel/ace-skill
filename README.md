@@ -242,6 +242,37 @@ Si el subdirectorio de la plantilla no existe en la rama indicada, la skill
 informa `BLOQUEO`. Nunca debe sustituirse por la plantilla de otra rama ni por
 una copia local antigua.
 
+### 6.2 Como obtener la plantilla
+
+La skill trae un script que hace el trabajo y evita repetir comandos:
+
+```powershell
+python C:\Users\%USERNAME%\.agents\skills\ace-skill\scripts\clonar_referencia.py --plantilla IBS --dest D:\ruta\plantilla
+python C:\Users\%USERNAME%\.agents\skills\ace-skill\scripts\clonar_referencia.py --flowpilot --dest D:\ruta\flowpilot
+```
+
+| Dominio | Rama | Subdirectorio |
+|---|---|---|
+| `IBS` | `IBS` | `app213-payexe-prorev-core-upda-s-ops-ace` |
+| `HUB` | `HUB` | `app213-payexe-prorev-hub-upda-s-ops-ace` |
+| `ORQ` | `ORQ` | `app213-payinfass-agrdeblis-retr-b-ops-ace` |
+
+El script entrega un informe con el commit de la rama, los archivos que hay que
+leer y los patrones que no encontraron nada. Codigos: `0` correcto, `2` bloqueante,
+`3` error tecnico.
+
+Un detalle importante: la plantilla se lee **completa**, sin excepción. La
+fidelidad se copia archivo a archivo, y saltarse uno es precisamente lo que
+introduce residuos de otra plantilla. El script entrega el inventario de los 81
+archivos de la IBS para que el agente sepa el alcance. El clon se optimiza en
+transferencia (`--depth 1`, `--filter=blob:none`), nunca en lectura.
+
+Solo en `ace-flowpilot` el ambito se reduce a las guias aplicables, porque ahi
+las imagenes, el backlog y los conectores de terceros no aplican a esta
+fabrica. Y esas guias se descubren por patron, no con una lista fija: si
+`ace-flowpilot` publica una guia nueva, la skill la lee sin que tengas que
+actualizar nada.
+
 ---
 
 ## 7. Como pedir una generacion
@@ -773,6 +804,7 @@ No generes el desarrollo del servicio, solo la parte documental.
 
 | Script | Que comprueba |
 |---|---|
+| `clonar_referencia.py` | Clona la plantilla o la guia por rama y dice que archivos leer |
 | `validar_contrato.py` | Esquema, mapeos, copybook, operaciones duplicadas |
 | `generate_cobol_dfdl_xsd.py` | Genera el XSD desde el copybook (solo con copybook) |
 | `generar_openapi.py` | Produce el paquete documental |

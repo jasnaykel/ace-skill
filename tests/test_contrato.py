@@ -64,10 +64,38 @@ def test_ejemplar_proyecta_parametros_que_la_skill_ya_usa(contrato):
     assert parametros["grupo_ldap"] == "CPS_PROCOLLIS_CORP_RETR"
 
 
-def test_openapi_tiene_una_sola_stanza_servers(contrato):
+def test_openapi_publica_la_via_base_completa(contrato):
+    """La via base completa va en servers[0].url, no en el path de la operacion."""
     openapi = to_openapi(contrato)
     assert len(openapi["servers"]) == 1
-    assert openapi["servers"][0]["url"] == "/v1.0/onprem/b/productcollectionlist"
+    assert openapi["servers"][0]["url"] == "/v1.0/onprem/b/productcollectionlist/retrieve"
+def test_raiz_proyecto_no_es_el_nombre_del_artefacto(contrato):
+    """
+    `nombre_servicio` es el nombre del artefacto ACE. Usarlo de carpeta produce
+    un arbol que no se parece a ningun repositorio de la organizacion.
+    """
+    parametros = to_legacy_parameters(contrato)
+    assert parametros["raiz_proyecto"] != parametros["servicio"]
+    assert parametros["raiz_proyecto"] == "app213-payexe-prorev-core-upda-s-ops-ace"
+
+
+def test_raiz_proyecto_preferida_al_nombre_del_contrato(contrato):
+    """`componente.nombre_repo` del ETI manda sobre el subdirectorio plantilla."""
+    contrato["componente"]["nombre_repo"] = "app213-procollis-corp-retr-b-ops-ace"
+    assert to_legacy_parameters(contrato)["raiz_proyecto"] == "app213-procollis-corp-retr-b-ops-ace"
+
+
+def test_via_base_no_duplica_el_action_term(contrato):
+    """
+    El action term puede escribirse en `base_path` o en `operaciones[].path`,
+    nunca en los dos. En los dos, la via publicada sale duplicada.
+    """
+    contrato["exposicion"]["base_path"] = "/v1.0/onprem/b/productcollectionlist/retrieve"
+    assert to_openapi(contrato)["servers"][0]["url"] == \
+        "/v1.0/onprem/b/productcollectionlist/retrieve"
+    assert to_legacy_parameters(contrato)["ruta_servicio"] == \
+        "v1.0/onprem/b/productcollectionlist/retrieve"
+
 
 
 def test_openapi_omite_detalles_de_backend(contrato):
@@ -465,3 +493,56 @@ def test_iter_campos_recorre_items(contrato):
     assert "CustomerReference" in nombres
     assert "PartyIdentification" in nombres   # dentro del array
     assert "Currency" in nombres
+
+
+
+
+def test_openapi_expone_paths_de_la_plantilla(contrato):
+    """La plantilla publica la operacion en `/` y el HealthCheck en `/health`."""
+    paths = to_openapi(contrato)["paths"]
+    assert set(paths) == {"/", "/health"}
+    assert "post" in paths["/"]
+    assert paths["/health"]["get"]["operationId"] == "HealthCheck"
+
+
+def test_openapi_no_declara_security_schemes(contrato):
+    """
+    `type: mutualTLS` es OpenAPI 3.1. En 3.0.x el importador REST de ACE 12
+    lanza NullPointerException en vez de un error legible.
+    """
+    openapi = to_openapi(contrato)
+    assert "securitySchemes" not in (openapi.get("components") or {})
+    assert "security" not in openapi
+
+
+def test_openapi_no_declara_cabeceras_reservadas(contrato):
+    """ACE deriva Content-Type/Accept/Authorization del body; declararlas rompe."""
+    parametros = (to_openapi(contrato).get("components") or {}).get("parameters") or {}
+    declarados = {p["name"].lower() for p in parametros.values()}
+    assert not declarados & {"content-type", "accept", "authorization"}
+
+
+def test_raiz_proyecto_no_es_el_nombre_del_artefacto(contrato):
+    """
+    `nombre_servicio` es el nombre del artefacto ACE. Usarlo de carpeta produce
+    un arbol que no se parece a ningun repositorio de la organizacion.
+    """
+    parametros = to_legacy_parameters(contrato)
+    assert parametros["raiz_proyecto"] != parametros["servicio"]
+    assert parametros["raiz_proyecto"] == "app213-payexe-prorev-core-upda-s-ops-ace"
+
+
+def test_raiz_proyecto_preferida_al_nombre_del_contrato(contrato):
+    """`componente.nombre_repo` del ETI manda sobre el subdirectorio plantilla."""
+    contrato["componente"]["nombre_repo"] = "app213-procollis-corp-retr-b-ops-ace"
+    assert to_legacy_parameters(contrato)["raiz_proyecto"] == "app213-procollis-corp-retr-b-ops-ace"
+
+
+def test_via_base_no_duplica_el_action_term(contrato):
+    """
+    El action term puede escribirse en `base_path` o en `operaciones[].path`,
+    nunca en los dos. En los dos, la via publicada sale duplicada.
+    """
+    contrato["exposicion"]["base_path"] = "/v1.0/onprem/b/productcollectionlist/retrieve"
+    assert to_openapi(contrato)["servers"][0]["url"] == "/v1.0/onprem/b/productcollectionlist/retrieve"
+    assert to_legacy_parameters(contrato)["ruta_servicio"] == "v1.0/onprem/b/productcollectionlist/retrieve"

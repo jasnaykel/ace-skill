@@ -24,25 +24,64 @@ No seleccionar por semejanza semántica ni por datos encontrados en otra secció
 Para `IBS`, el servicio de referencia es el BUS atómico que consume el RPG `RE0058RI` mediante Backend Centralizado. Para `HUB`, no asumir contratos, backend, códigos ni convenciones IBS: leer el contenido real de la plantilla `HUB`. Para `ORQ`, la plantilla es de capa de negocio y coordina uno o más servicios atómicos; no debe sustituirse por una plantilla atómica IBS/HUB.
 
 ## Resolución de Plantilla (Git-First)
-Antes de iniciar la generación:
+Antes de iniciar la generación, clonar la referencia de trabajo con el script de la skill. El script hace el clon superficial de la rama, deja en disco solo lo necesario y devuelve qué archivos hay que leer:
+
+```bash
+python scripts/clonar_referencia.py --plantilla IBS --dest <TEMPLATE_REPO_ROOT>
+python scripts/clonar_referencia.py --plantilla HUB --dest <TEMPLATE_REPO_ROOT>
+python scripts/clonar_referencia.py --plantilla ORQ --dest <TEMPLATE_REPO_ROOT>
+python scripts/clonar_referencia.py --flowpilot  --dest <FLOWPILOT_ROOT>
+```
+
+Códigos de salida: `0` correcto · `2` bloqueante (el subdirectorio no existe en esa rama) · `3` error técnico.
+
+| Opción | Para qué |
+|---|---|
+| `--sparse` | Dejar en disco solo el subdirectorio. **Apagado por defecto**: medido no ahorra tiempo. |
+| `--reusar` | Reutilizar el clon si el destino ya existe |
+
+Comando git equivalente, por si hay que hacerlo a mano:
+
+```bash
+git clone --branch <BRANCH> --single-branch --depth 1 --filter=blob:none <URL> <TEMPLATE_REPO_ROOT>
+git -C <TEMPLATE_REPO_ROOT> rev-parse --verify HEAD
+git -C <TEMPLATE_REPO_ROOT> ls-tree -r --name-only HEAD
+git -C <TEMPLATE_REPO_ROOT> ls-tree -d --name-only HEAD -- <SUBDIRECTORIO_SELECCIONADO>
+```
+
+> **Rendimiento medido, no supuesto.** `--depth 1` (sin historial) y
+> `--filter=blob:none` (sin blobs hasta pedirlos) no tienen contraprestación: se
+> usan siempre. El script reintenta sin `--filter` si el servidor no lo soporta.
+> El `--sparse` **no** es un quick win en estos repos: añadir el subdirectorio
+> exige una segunda invocación y esa ida al servidor cuesta más de lo que ahorra.
+> Medido en `plantillas-AI` rama `IBS`: sin sparse 11,6 s, con sparse 13,9 s. En
+> `ace-flowpilot` (184 archivos): sin sparse 6,8 s y 1,6 MB, con sparse 7,5 s y
+> 0,8 MB. Reduce disco, no tiempo; por eso va apagado.
+>
+> **Lo que sí ahorra tokens no es clonar, es leer. Y la plantilla se lee entera.**
+> El script entrega el inventario completo para que el agente sepa el alcance y
+> no se salte ningún archivo: la fidelidad se copia archivo a archivo, y es
+> justamente skipping lo que hace aparecer un residuo de otra plantilla. En la
+> plantilla IBS son 81 archivos, todos aplicables.
+>
+> La reducción de lectura solo se aplica a `ace-flowpilot`, donde la propia skill
+> dice "consultar solo los archivos aplicables" (imágenes, backlog y conectores
+> de terceros no aplican a esta fábrica). Ahí las guías se **descubren por
+> patrón**, no se enumeran: si `ace-flowpilot` publica una guía nueva, la skill la
+> lee sin tocar nada. Hoy son 18 guías aplicables.
+
+Luego:
 1. Determinar el dominio desde la solicitud, SCI/ETI o instrucción explícita del usuario. Si no se puede determinar, solicitar aclaración antes de generar.
-2. Clonar el repositorio en una carpeta temporal del dominio mediante:
-   ```bash
-   git clone --branch <BRANCH> --single-branch https://github.com/Karinadr/plantillas-AI.git <TEMPLATE_REPO_ROOT>
-   git -C <TEMPLATE_REPO_ROOT> rev-parse --verify HEAD
-   git -C <TEMPLATE_REPO_ROOT> ls-tree -r --name-only HEAD
-   git -C <TEMPLATE_REPO_ROOT> ls-tree -d --name-only HEAD -- <SUBDIRECTORIO_SELECCIONADO>
-   ```
-3. Resolver `<TEMPLATE_ROOT>` como `<TEMPLATE_REPO_ROOT>/<SUBDIRECTORIO_SELECCIONADO>` y analizar tanto el árbol del repositorio como el subdirectorio real.
-4. Registrar dominio, URL, rama, subdirectorio y el commit que devuelve el `HEAD` de la rama. La plantilla se resuelve por **repositorio y rama**, no por commit fijo: el clon se hace siempre sobre la rama y se usa su `HEAD` actual, de modo que una mejora publicada en la plantilla aplique sin editar el contrato. El commit se registra como evidencia de con qué versión se generó, no como entrada del contrato. Todos los archivos y estructuras generados deben basarse con un 100% de fidelidad en `<TEMPLATE_ROOT>`. No inventar nombres de carpetas, de subflows ni de convenciones. No buscar archivos en otros workspaces o rutas fuera del clon de la plantilla seleccionada.
-5. Si el comando de verificación no encuentra el subdirectorio seleccionado, declarar **BLOQUEO** y solicitar que se publique la plantilla en esa rama. No sustituirla automáticamente por la plantilla histórica de IBS, HUB u ORQ ni por archivos de otra rama.
+2. Resolver `<TEMPLATE_ROOT>` como `<TEMPLATE_REPO_ROOT>/<SUBDIRECTORIO_SELECCIONADO>` y analizar tanto el árbol del repositorio como el subdirectorio real.
+3. Registrar dominio, URL, rama, subdirectorio y el commit que devuelve el `HEAD` de la rama. La plantilla se resuelve por **repositorio y rama**, no por commit fijo: el clon se hace siempre sobre la rama y se usa su `HEAD` actual, de modo que una mejora publicada en la plantilla aplique sin editar el contrato. El commit se registra como evidencia de con qué versión se generó, no como entrada del contrato. Todos los archivos y estructuras generados deben basarse con un 100% de fidelidad en `<TEMPLATE_ROOT>`. No inventar nombres de carpetas, de subflows ni de convenciones. No buscar archivos en otros workspaces o rutas fuera del clon de la plantilla seleccionada.
+4. Si el comando de verificación no encuentra el subdirectorio seleccionado, declarar **BLOQUEO** y solicitar que se publique la plantilla en esa rama. No sustituirla automáticamente por la plantilla histórica de IBS, HUB u ORQ ni por archivos de otra rama.
 
 ## Repositorio técnico complementario
 La plantilla seleccionada se complementa con las guías técnicas de `ace-flowpilot`:
 - **URL:** `https://github.com/ot4i/ace-flowpilot/tree/main`
 - **Rama:** `main`
-- **Clonado:** `git clone --branch main --single-branch https://github.com/ot4i/ace-flowpilot.git <FLOWPILOT_ROOT>`
-- **Uso:** analizar el árbol real y consultar solo los archivos aplicables. Registrar el commit; no asumir rutas ni inventar contenido si una guía no existe.
+- **Clonado:** `python scripts/clonar_referencia.py --flowpilot --dest <FLOWPILOT_ROOT>`
+- **Uso:** analizar el árbol real y consultar solo los archivos aplicables. Registrar el commit que devuelve el `HEAD`; no asumir rutas ni inventar contenido si una guía no existe. Solo se lee `SKILL.md` y `skills/shared/**`: el resto del repositorio (imágenes, backlog, conectores de terceros) no aplica a esta fábrica.
 
 ## Estructura que define la plantilla (patrón fijo)
 ```
