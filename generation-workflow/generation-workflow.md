@@ -11,6 +11,23 @@ Procedimiento operativo para que la IA genere **desarrollo base** de un servicio
 
 > ⛔ Si falta un insumo → **BLOQUEO**. No continuar.
 
+## Insumo condicional: copybook
+- `SCI.md` y `ETI.md` son **siempre obligatorios**. Sin uno de los dos no hay generación.
+- El **copybook es opcional** y solo aplica cuando el servicio realmente consume una trama COBOL/RPG.
+
+| Caso | Copybook |
+|---|---|
+| Backend `IBS_RPG` (trama propia con copybook) | **Obligatorio**. Sin `backend.copybook.ruta` → BLOQUEO. |
+| Orquestador que coordina servicios REST y no consume trama propia | **No aplica**. No declararlo ni inventarlo. |
+| Servicio que solo consume o expone REST, sin COBOL | **No aplica**. |
+
+La decisión se toma desde el ETI, según qué consume el servicio. Un servicio sin
+copybook **no** es un servicio incompleto: es un servicio sin capa DFDL. En ese
+caso el contrato no declara `backend.copybook`, ni `dfdl`, ni `artefactos_backend`,
+y no se generan `IBMdefined/`, `importFiles/`, `<PCML>.xsd` ni el `.yaml` de
+`CTRLLENGTHCPY`. Inventar un copybook para "completar" el desarrollo es un defecto,
+no una mejora.
+
 ## Paso 0 — Resolver y analizar la plantilla seleccionada
 Antes de leer o generar artefactos:
 
@@ -64,6 +81,46 @@ Resolver para el nuevo servicio `<Servicio>`:
 | **Parametrizar** (desde SCI/ETI) | `cod_servicio`, constantes CT-XXX, contrato OpenAPI + `request.schema.json` (campos/longitudes/regex/obligatoriedad), mapeo `prepareDataRequestDFDL` y `armaRpta*_OK/_ERROR`, destinos (URLDEST/TIMEOUT/PROTOCOLO/METODO/PROGRAM/PCML), LDAP GD/GQ/GP, timeouts, `UDP_OPERACION_GET`, monitoreo, Postman |
 
 ## Paso 4 — Generación
+
+### 4.0 — Elegir el modo: legacy o contrato
+
+Hay dos modos. **Ninguno reemplaza al otro.**
+
+```text
+modo legacy   (predeterminado, sigue siendo el que funciona)
+  SCI + ETI + plantilla (+ copybook si el ETI define trama)  →  la IA lee y genera
+
+modo contrato  (optativo, capa de preparación)
+  SCI + ETI → contrato.yaml → validar → paquete → la IA genera
+```
+
+**Usa legacy cuando:** el usuario pide generar, hay un contrato válido y ya
+probado, o la migración aún no ha llegado a paridad en ese servicio.
+
+**Usa contrato cuando:** el usuario lo pide, o existe un `contrato.yaml`
+validado para ese servicio. En ese caso el flujo es:
+
+```bash
+python scripts/validar_contrato.py contrato.yaml     # 0 = seguir, 2 = BLOQUEO
+python scripts/generate_cobol_dfdl_xsd.py <cpy> <xsd> # fuera del contrato
+python scripts/generar_openapi.py contrato.yaml -d paquete/
+```
+
+Y la IA recibe el `paquete/`: `artefactos.yaml`, `contrato.resuelto.yaml`,
+`parametros.json`, `openapi.yaml`, `request.schema.json`, más la plantilla
+clonada sobre su rama (commit no fijado). Prompt de ejecución en
+`contratos/README.md`.
+
+En modo contrato, `parametros.json` alimenta **la misma lógica que ya
+funciona**: no se reescribe ni el motor ESQL ni la parametrización de la
+plantilla. Lo que cambia es de dónde salen los datos, no quién los usa.
+
+Mientras no haya paridad demostrada en dos servicios atómicos, el modo
+contrato **no bloquea por defecto**: se usa con `validar_contrato.py --shadow`
+para medir cuántos bloqueantes da antes de que bloqueen.
+
+### 4.0.1 — Paso 4 sin modo (compartido por los dos)
+
 Generar el desarrollo base completo:
 1. `src/application/APP_<S>/` (fachada mTLS+Onprem): **`<S>.yaml` (OpenAPI de la fachada: UNA stanza `servers` con vía base `/v1.0/s/...` + schemas del contrato; los canales mTLS/onprem SOLO como descripción)** + **`.project`** + `application.descriptor` + **`MF_<S>.msgflow` generado como XMI** (`message-flows/message-flows.md`).
 2. `src/v1.0/service/<S>/` (contrato + **`.project`** + **`gen/<S>.msgflow` + subflows generados como XMI** + DFDL/PCML (`IBMdefined/`, `importFiles/`, `log/`, **`<PCML>.xsd`**) + ESQL por capas).
@@ -71,7 +128,7 @@ Generar el desarrollo base completo:
 4. `ci/valid_cfg_values.yaml` + `ci/Monitoring.json`.
 5. `test/` Postman.
 
-> ⛔ Los `.project` deben replicar buildSpec/natures exactos de la plantilla. Los `.msgflow`/`.subflow` NO se difieren al Toolkit: se entregan como XML/XMI válido. El XSD DFDL **sí es obligatorio en la salida**: generarlo con ACE Toolkit o, si no es posible invocar el importador, con `scripts/generate_cobol_dfdl_xsd.py`; después validarlo en ACE Toolkit. Nunca entregar solo el copybook y el reporte de importación.
+> ⛔ Los `.project` deben replicar buildSpec/natures exactos de la plantilla. Los `.msgflow`/`.subflow` NO se difieren al Toolkit: se entregan como XML/XMI válido. El XSD DFDL es obligatorio **solo si el servicio tiene copybook** (backend `IBS_RPG`): generarlo con ACE Toolkit o, si no es posible invocar el importador, con `scripts/generate_cobol_dfdl_xsd.py`; después validarlo en ACE Toolkit. Nunca entregar solo el copybook y el reporte de importación. Si el ETI no define trama propia, no se generan XSD ni artefactos DFDL y eso **no** es un incumplimiento.
 
 ### 4.1 — Gate de verificación estructural y sintáctica (obligatorio)
 

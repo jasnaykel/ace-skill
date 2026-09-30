@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://banbif.local/ace-skill/contrato.schema.json",
+  "title": "Contrato canonico de componente ACE",
+  "type": "object",
+  "required": ["contrato", "proyecto", "componente", "plantilla", "exposicion"],
+  "properties": {
+    "contrato": { "const": "1.0" },
+    "proyecto": { "type": "string", "minLength": 1 },
+    "perfil": { "type": "object" },
+
+    "componente": {
+      "type": "object",
+      "required": ["tipo", "nombre_servicio", "nombre_funcional"],
+      "properties": {
+        "tipo": { "enum": ["atomico", "orquestador"] },
+        "dominio": { "type": "string" },
+        "nombre_tecnico": { "type": "string" },
+        "nombre_servicio": { "type": "string", "minLength": 1 },
+        "nombre_funcional": { "type": "string", "minLength": 1 },
+        "requerimiento": { "type": ["string", "number"] },
+        "capa": { "type": "string" },
+        "producto": { "type": "string" },
+        "linea_producto": { "type": "string" }
+      }
+    },
+
+    "plantilla": {
+      "type": "object",
+      "required": ["tipo", "url", "rama", "subdirectorio"],
+      "properties": {
+        "tipo": { "enum": ["ace-bus-rest", "ace-orquestador", "ach"] },
+        "url": { "type": "string", "minLength": 1 },
+        "rama": { "type": "string", "minLength": 1 },
+        "subdirectorio": { "type": "string", "minLength": 1 },
+        "commit": { "type": "string", "pattern": "^[0-9a-fA-F]{7,64}$" },
+        "resolucion": { "const": "rama" }
+      }
+    },
+
+    "exposicion": {
+      "type": "object",
+      "required": ["protocolo", "base_path", "operaciones"],
+      "properties": {
+        "protocolo": { "enum": ["REST", "SOAP", "MQ", "NONE"] },
+        "base_path": { "type": "string" },
+        "seguridad_externa": { "type": "string" },
+        "operaciones": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["id", "nombre", "metodo", "path"],
+            "properties": {
+              "id": { "type": "string" },
+              "nombre": { "type": "string" },
+              "metodo": { "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+              "path": { "type": "string" },
+              "descripcion": { "type": "string" },
+              "timeout_cliente_s": { "type": "integer" },
+              "timeout_backend_s": { "type": "integer" }
+            }
+          }
+        }
+      }
+    },
+
+    "headers": {
+      "type": "object",
+      "properties": {
+        "request": { "type": "array", "items": { "$ref": "#/$defs/header" } },
+        "response": { "type": "array", "items": { "$ref": "#/$defs/header" } }
+      }
+    },
+
+    "request": {
+      "type": "object",
+      "properties": {
+        "body": {
+          "type": "object",
+          "properties": {
+            "nombre_raiz": { "type": "string" },
+            "campos": { "type": "array", "items": { "$ref": "#/$defs/campo" } }
+          }
+        }
+      }
+    },
+
+    "response": {
+      "type": "object",
+      "properties": {
+        "body": {
+          "type": "object",
+          "properties": {
+            "nombre_raiz": { "type": "string" },
+            "campos": { "type": "array", "items": { "$ref": "#/$defs/campo" } }
+          }
+        }
+      }
+    },
+
+    "backend": {
+      "type": "object",
+      "properties": {
+        "tipo": { "enum": ["IBS_RPG", "REST", "SOAP", "MQ", "ACH"] },
+        "conector": { "type": "string" },
+        "programa_resolutor": { "type": "string" },
+        "programa": { "type": "string" },
+        "timeout_s": { "type": "integer" },
+        "copybook": {
+          "type": "object",
+          "required": ["ruta"],
+          "properties": {
+            "ruta": { "type": "string", "minLength": 1 },
+            "request": { "type": "string" },
+            "response": { "type": "string" },
+            "error": { "type": "string" },
+            "xsd_generado": { "type": "string" },
+            "yaml_control": { "type": "string" }
+          }
+        },
+        "mapeo": { "type": "object" }
+      }
+    },
+
+    "dfdl": {
+      "type": "object",
+      "properties": {
+        "script": { "type": "string" },
+        "xsd_esperado": { "type": "string" },
+        "opciones": { "type": "object" },
+        "cardinalidad": { "type": "object" }
+      }
+    },
+
+    "artefactos_backend": {
+      "type": "object",
+      "description": "Funcion de cada artefacto. Evita sustituir el .yaml de CTRLLENGTHCPY por el .xsd.",
+      "properties": {
+        "copybook": { "type": "object" },
+        "dfdl_xsd": { "type": "object" },
+        "control_length": { "type": "object" }
+      }
+    },
+
+    "reglas": { "type": "object" },
+    "configuracion": { "type": "object" },
+    "seguridad": { "type": "object" },
+    "errores": { "type": "array" },
+    "orquestacion": { "type": "object" },
+    "decisiones": { "type": "object" },
+    "fuentes": { "type": "object" }
+  },
+
+  "$defs": {
+    "header": {
+      "type": "object",
+      "required": ["nombre"],
+      "properties": {
+        "nombre": { "type": "string", "minLength": 1 },
+        "tipo": { "type": "string" },
+        "longitud": { "type": ["integer", "string"] },
+        "obligatorio": { "type": "boolean" },
+        "formato": { "type": "string" },
+        "valor": { "type": "string" },
+        "propagacion_backend": { "type": "string" },
+        "generado_por": { "type": "string" },
+        "origen": { "type": "string" }
+      }
+    },
+    "campo": {
+      "type": "object",
+      "required": ["nombre", "tipo"],
+      "properties": {
+        "nombre": { "type": "string", "minLength": 1 },
+        "ruta": { "type": "string" },
+        "tipo": { "type": "string", "minLength": 1 },
+        "longitud": { "type": ["integer", "string"] },
+        "obligatorio": { "type": "boolean" },
+        "formato": { "type": "string" },
+        "constante": { "type": "string" },
+        "expuesto": { "type": "boolean" },
+        "valor_configurado": { "type": "string" },
+        "max_items": { "type": "integer" },
+        "backend": { "type": "object" },
+        "backend_campo": { "type": "string" },
+        "items": { "type": "array", "items": { "$ref": "#/$defs/campo" } },
+        "origen": { "type": "string" }
+      }
+    }
+  }
+}

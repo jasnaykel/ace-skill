@@ -1,0 +1,402 @@
+# Contrato canonico derivado de SCI + ETI + FX0009RI.cpy + FX0009RI.pcml.
+# Este contrato queda bloqueado hasta resolver las decisiones indicadas al final.
+contrato: "1.0"
+proyecto: banbif
+
+componente:
+  tipo: atomico
+  dominio: IBS
+  nombre_tecnico: BUS_S_PaymentExecution_ProcedureExchangeTransaction_Initiate
+  nombre_servicio: BUS_PayExe_ProExcTra_Init_S
+  nombre_funcional: Transferencia entre cuentas con tipo de cambio personalizado
+  requerimiento: "166"
+  capa: S
+  producto: Tipo de Cambio
+  linea_producto: Tesoreria
+
+plantilla:
+  tipo: ace-bus-rest
+  url: https://github.com/Karinadr/plantillas-AI.git
+  rama: IBS
+  subdirectorio: app213-payexe-prorev-core-upda-s-ops-ace
+  commit: d94d087a86fad68dc7c11b12abde43dbefef79a5
+
+exposicion:
+  protocolo: REST
+  base_path: /v1.0/s/paymentexecution/procedureexchangetransaction
+  seguridad_externa: mtls
+  operaciones:
+    - id: initiate_payment_execution_procedure_exchange_transaction
+      nombre: InitiatePaymentExecutionProcedureExchangeTransaction
+      metodo: POST
+      path: /initiate
+      descripcion: Realiza una transferencia entre cuentas con tipo de cambio personalizado.
+      timeout_cliente_s: 25
+      timeout_backend_s: 16
+
+headers:
+  request:
+    - nombre: Content-Type
+      tipo: string
+      longitud: "15,16"
+      obligatorio: true
+      formato: "^[a-zA-Z0-9\\-\\/]{15,16}$"
+      valor: application/json
+      origen: SCI:DatosEntrada:HEADERS REQUEST
+    - nombre: Time-Stamp
+      tipo: string
+      longitud: 24
+      obligatorio: true
+      formato: '^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d:[0-5]\d\.\d{3}Z$'
+      origen: SCI:DatosEntrada:HEADERS REQUEST
+    - nombre: Bif-Correlation-Id
+      tipo: string
+      longitud: 36
+      obligatorio: true
+      formato: '^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
+      propagacion_backend: ID_TRX
+      origen: SCI:DatosEntrada:HEADERS REQUEST
+    - nombre: Bif-Consumer-Id
+      tipo: string
+      longitud: 6
+      obligatorio: true
+      formato: '^APP\d{3}$'
+      propagacion_backend: ID_CANAL
+      origen: SCI:DatosEntrada:HEADERS REQUEST
+    - nombre: Bif-Mdw-Id
+      tipo: string
+      longitud: 6
+      obligatorio: true
+      formato: '^APP\d{3}$'
+      origen: SCI:DatosEntrada:HEADERS REQUEST
+    - nombre: Host-Id
+      tipo: string
+      longitud: "7,15"
+      obligatorio: false
+      formato: '^.{7,15}$'
+      origen: SCI:DatosEntrada:HEADERS REQUEST
+    - nombre: Branch-Code
+      tipo: string
+      longitud: "5,30"
+      obligatorio: false
+      formato: '^.{5,30}$'
+      origen: SCI:DatosEntrada:HEADERS REQUEST
+    - nombre: Country-Code
+      tipo: string
+      longitud: "5,30"
+      obligatorio: false
+      formato: '^.{5,30}$'
+      origen: SCI:DatosEntrada:HEADERS REQUEST
+    - nombre: User-Id
+      tipo: string
+      longitud: "0,10"
+      obligatorio: false
+      formato: '^.{0,10}$'
+      origen: SCI:DatosEntrada:HEADERS REQUEST
+    - nombre: Device-Id
+      tipo: string
+      longitud: "5,30"
+      obligatorio: false
+      formato: '^.{5,30}$'
+      origen: SCI:DatosEntrada:HEADERS REQUEST
+    - nombre: Authorization
+      tipo: string
+      obligatorio: true
+      origen: SCI:DatosEntrada:HEADERS REQUEST
+  response:
+    - nombre: Content-Type
+      valor: application/json;charset=utf-8
+      generado_por: servicio
+    - nombre: HttpCode
+      generado_por: servicio
+    - nombre: HttpMessage
+      generado_por: servicio
+    - nombre: Bif-Request-Id
+      longitud: 17
+      generado_por: servicio
+    - nombre: Bif-Correlation-Id
+      longitud: 36
+      generado_por: servicio
+    - nombre: Time-Stamp
+      longitud: 24
+      generado_por: servicio
+
+request:
+  body:
+    nombre_raiz: InitiatePaymentExecutionProcedureExchangeTransaction
+    campos:
+      - nombre: IdServicio
+        expuesto: false
+        valor_configurado: PayExe_ProExcTra_Init_S
+        tipo: string
+        longitud: 6
+        backend:
+          campo: ID_SERVICIO
+        origen: SCI:DatosEntrada:Body REQUEST
+      - nombre: MemberIdentification
+        ruta: Customer.MemberIdentification
+        tipo: string
+        longitud: "1,10"
+        obligatorio: true
+        formato: '^(?:[A-Z]+\d+|\d+)$'
+        backend:
+          campo: INTUSRCRD
+        origen: SCI:DatosEntrada:Body REQUEST
+      - nombre: OriginAccountNumber
+        ruta: Account.OriginAccountNumber
+        tipo: string
+        longitud: 10
+        obligatorio: true
+        formato: '^\d{10}$'
+        backend:
+          campo: INTFRMACC
+        origen: SCI:DatosEntrada:Body REQUEST
+      - nombre: DestinationAccountNumber
+        ruta: Account.DestinationAccountNumber
+        tipo: string
+        longitud: 10
+        obligatorio: true
+        formato: '^\d{10}$'
+        backend:
+          campo: INTTOACC
+        origen: SCI:DatosEntrada:Body REQUEST
+      - nombre: Amount
+        ruta: Transaction.Amount
+        tipo: number
+        longitud: "9.2"
+        obligatorio: true
+        formato: '^\d{9}\.\d{2}$'
+        backend:
+          campo: INTTRFAMT
+        origen: SCI:DatosEntrada:Body REQUEST
+      - nombre: ExchangeRate
+        ruta: Transaction.ExchangeRate
+        tipo: number
+        longitud: "4.4"
+        obligatorio: true
+        formato: '^\d{4}\.\d{4}$'
+        backend:
+          campo: INTEXCRTE
+        origen: SCI:DatosEntrada:Body REQUEST
+      - nombre: ReferenceNumber
+        ruta: Transaction.ReferenceNumber
+        tipo: string
+        longitud: "6,14"
+        obligatorio: true
+        formato: '^\d{6,14}$'
+        backend:
+          campo: INTNIDSQL
+        origen: SCI:DatosEntrada:Body REQUEST
+      - nombre: ChannelIdentification
+        tipo: string
+        longitud: 6
+        obligatorio: true
+        formato: '^APP\d{3}$'
+        backend:
+          campo: INTTRFCNL
+        origen: SCI:DatosEntrada:Body REQUEST
+      - nombre: MaximumAmount
+        ruta: Backoffice.MaximumAmount
+        tipo: number
+        longitud: "9.2"
+        obligatorio: false
+        backend:
+          campo: INTTRFAMX
+        origen: SCI:DatosEntrada:Body REQUEST
+
+response:
+  body:
+    nombre_raiz: InitiatePaymentExecutionProcedureExchangeTransactionResponse
+    campos:
+      - nombre: X-Correlation-Id
+        tipo: string
+        longitud: 36
+        backend:
+          campo: ID_TRX
+      - nombre: TimeStamp
+        tipo: string
+        longitud: 18
+        backend:
+          campo: ID_TIMESTAMP
+      - nombre: OperationFlag
+        ruta: OperationResponse[].OperationFlag
+        tipo: string
+        longitud: 1
+        obligatorio: true
+        backend:
+          campo: PRPTA
+      - nombre: ResponseCode
+        ruta: OperationResponse[].ResponseCode
+        tipo: string
+        longitud: 6
+        obligatorio: true
+        backend:
+          campo: DSJNUM
+      - nombre: ResponseMessage
+        ruta: OperationResponse[].ResponseMessage
+        tipo: string
+        longitud: 80
+        obligatorio: true
+        backend:
+          campo: DSJIMSTXT
+      - nombre: BackendUser
+        expuesto: false
+        tipo: string
+        longitud: 10
+        backend:
+          campo: DSJIMSUSRC
+      - nombre: BackendProduct
+        expuesto: false
+        tipo: string
+        longitud: 4
+        backend:
+          campo: DSJIMSPRD
+      - nombre: BackendCustomer
+        expuesto: false
+        tipo: string
+        longitud: 9
+        backend:
+          campo: DSJIMSCUN
+      - nombre: BackendDate
+        expuesto: false
+        tipo: string
+        longitud: 8
+        backend:
+          campo: DSJIMSSDTE
+      - nombre: BackendTime
+        expuesto: false
+        tipo: string
+        longitud: 6
+        backend:
+          campo: DSJIMSSTIM
+      - nombre: BackendLinkType
+        expuesto: false
+        tipo: string
+        longitud: 2
+        backend:
+          campo: DSJIMSLNKT
+      - nombre: BackendKey
+        expuesto: false
+        tipo: string
+        longitud: 32
+        backend:
+          campo: DSJIMSKEY
+      - nombre: BackendName
+        expuesto: false
+        tipo: string
+        longitud: 45
+        backend:
+          campo: DSJIMSNME
+      - nombre: BackendFinalFlag
+        expuesto: false
+        tipo: string
+        longitud: 1
+        backend:
+          campo: DSJIMSFIN
+
+backend:
+  tipo: IBS_RPG
+  conector: standard-centralizedconnector
+  programa_resolutor: IN007RI
+  programa: FX0009RI
+  pcml_programa: IN2100RI
+  timeout_s: 16
+  comunicacion: asincrona
+  copybook:
+    ruta: D:/jasna/Trabajo/Trabajo IBM/Bitbucker/Tipo personalizado/documentacion/FX0009RI.cpy
+    request: INPUT
+    response: OUTPUT1
+    error: ELEERR
+    xsd_generado: FX0009RI.xsd
+    yaml_control: FX0009RI.yaml
+
+artefactos_backend:
+  copybook:
+    ruta: FX0009RI.cpy
+    funcion: fuente_fisica
+  dfdl_xsd:
+    ruta: FX0009RI.xsd
+    funcion: modelo_dfdl
+  control_length:
+    ruta: FX0009RI.yaml
+    funcion: definicion_ctrllengthcpy
+    nota: Consume CTRLLENGTHCPY.filenamePattern; no se sustituye por el XSD.
+
+dfdl:
+  script: scripts/generate_cobol_dfdl_xsd.py
+  xsd_esperado: FX0009RI.xsd
+  opciones:
+    codepage: ISO-8859-1
+    endian: Little
+    string_padding: "%SP;"
+    number_padding: "0"
+    preserve_case: true
+  cardinalidad:
+    OUTPUT1:
+      tipo: fixed
+      min: 1
+      max: 1
+
+configuracion:
+  codigo_servicio: PayExe_ProExcTra_Init_S
+  timeouts:
+    backend_s: 16
+    servidor_s: 17
+    cliente_s: 25
+  constantes:
+    UDP_USE_CCAS400: S
+  destinos:
+    health:
+      metodo: GET
+      timeout_s: 16
+      url_por_ambiente:
+        DEV: "${CENTRAL_CONNECTOR_HEALTH_DEV}"
+        QAS: "${CENTRAL_CONNECTOR_HEALTH_QAS}"
+        PRD: "${CENTRAL_CONNECTOR_HEALTH_PRD}"
+    main:
+      metodo: POST
+      timeout_s: 16
+      programa: IN2100RI
+      pcml: FX0009RI
+      url_por_ambiente:
+        DEV: "${CENTRAL_CONNECTOR_MAIN_DEV}"
+        QAS: "${CENTRAL_CONNECTOR_MAIN_QAS}"
+        PRD: "${CENTRAL_CONNECTOR_MAIN_PRD}"
+  wdo:
+    filename_pattern: FX0009RI.yaml
+    schema_response: OUTPUT1
+    schema_error: ELEERR
+    pcml: FX0009RI
+
+seguridad:
+  canales: [mtls, onprem]
+  autorizacion:
+    tipo: ldap
+    grupos_por_ambiente:
+      DEV: PAYEXE_PROEXCTRA_INIT_GD
+      QAS: PAYEXE_PROEXCTRA_INIT_GQ
+      PRD: PAYEXE_PROEXCTRA_INIT_GP
+  cifrado:
+    - campo: Authorization
+      algoritmo: RSA 2048 - RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING
+
+errores:
+  - codigo: "02"
+    tipo: tecnico
+    http: 400
+    origen: SCI:DatosSalida:Estructura de Errores
+  - codigo: "ELEERR"
+    tipo: backend
+    http: 202
+    origen: SCI:ERRORES BACKEND AS400
+
+decisiones:
+  manuales: []
+  justificaciones: []
+  por_verificar:
+    - "SCI declara Consume RPG AS400=NO, pero ETI declara productor RPG IBS IN007RI -> FX0009RI y entrega copybook/PCML."
+    - "SCI declara protocolo TCP (JT400), mientras ETI expone REST POST y el desarrollo usa CentralizedConnector."
+    - "SCI y ETI declaran comunicacion ASINCRONA, pero el contrato publica respuesta HTTP 200 con payload de resultado."
+    - "ETI declara ExchangeRate longitud 4.4, pero copybook/PCML INTEXCRTE usa 9(5)V9(6), longitud 11."
+    - "SCI/ETI declaran cuentas de longitud 10, pero copybook/PCML INTFRMACC e INTTOACC usan PIC 9(12), longitud 12."
+    - "ETI solicita programa IN2100RI en el diagrama, mientras SCI declara resolutor IN007RI; confirmar programa PCML invocado."

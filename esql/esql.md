@@ -46,6 +46,76 @@ El recorrido repetido se realiza sobre una referencia declarada al primer hijo r
 - No concatenar cadenas para representar listas ni cambiar la cardinalidad para hacer que compile.
 - Después de cada routine nueva o modificada, verificar la sintaxis de forma estática para asegurar que sea correcta.
 
+### `IDENTITY(...)` solo existe en `CREATE` (error real de producción)
+
+En ESQL el modificador `IDENTITY(JSON.Array)` es un atributo de **creación de
+nodo**. Solo es válido en `CREATE FIELD` y `CREATE LASTCHILD OF`. Pegado a un
+`SET`, el parser aborta:
+
+```
+Syntax error. Valid options include: = NAME NAMESPACE TYPE VALUE
+```
+
+porque tras `SET destino` espera un `=` o un valor, y se encuentra `IDENTITY`.
+
+```sql
+-- MAL
+SET refJsonOut.CollectionsFreeList IDENTITY(JSON.Array);
+
+-- BIEN
+CREATE LASTCHILD OF refJsonOut IDENTITY(JSON.Array)CollectionsFreeList;
+```
+
+`CREATE FIELD refJsonOut.OperationResponse IDENTITY(JSON.Array);` tambien es
+valido, pero crea el campo; la forma de la plantilla para colgar un array del
+mensaje de salida es `CREATE LASTCHILD OF <padre> IDENTITY(JSON.Array)<Nombre>;`.
+
+### El `MOVE ... NEXTSIBLING` de recorrido debe ser incondicional
+
+En un bucle `WHILE LASTMOVE(ref) DO`, la instrucción que avanza la referencia va
+**al final del cuerpo del bucle, fuera de todo `IF`/`ELSE`**. Si solo está en
+una rama, hay recorridos en los que la referencia no avanza: el bucle no
+termina, y en el caso de un array JSON se duplica el último elemento hasta
+agotar la memoria.
+
+```sql
+-- MAL: si el registro tiene datos, no hay MOVE y el bucle no avanza
+WHILE LASTMOVE(refItem) DO
+    IF isNotEmpty(refItem.OCODCLI) THEN
+        SET refJsonItem.X = ...;
+    ELSE
+        MOVE refItem NEXTSIBLING;
+    END IF;
+END WHILE;
+
+-- BIEN: el avance es incondicional
+WHILE LASTMOVE(refItem) DO
+    IF isNotEmpty(refItem.OCODCLI) THEN
+        SET refJsonItem.X = ...;
+        MOVE refJsonItem NEXTSIBLING;
+    END IF;
+
+    MOVE refItem NEXTSIBLING;
+END WHILE;
+```
+
+No añadir condiciones al `WHILE` (`WHILE LASTMOVE(ref) AND i <= 40 DO`): el
+corte por longitud se resuelve con el dato del copybook, no con un contador
+inventado en el bucle.
+
+### Gate estático antes de entregar
+
+```bash
+python scripts/gate_estructural.py <RAIZ_DEL_REPO> <schema.es.broker>
+```
+
+Cubre lo que el Toolkit cobra después: referencias `esql://routine` sin
+resolver, `CALL` a routines inexistentes, XML mal formado, `xmi:id` duplicados,
+conexiones duplicadas, `IDENTITY` fuera de `CREATE`, bloques desbalanceados,
+bucles sin avance incondicional, residuos de la plantilla y `.project` faltantes.
+Sale con 2 si hay algo bloqueante. **Pasa antes de generar y después de
+generar**: si falla, no se entrega.
+
 ### JSON de entrada (root JSON) — sin `BROKER SCHEMA`
 ```sql
 CREATE LASTCHILD OF OutputRoot DOMAIN 'JSON' ContentType 'application/json';

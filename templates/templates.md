@@ -34,7 +34,7 @@ Antes de iniciar la generación:
    git -C <TEMPLATE_REPO_ROOT> ls-tree -d --name-only HEAD -- <SUBDIRECTORIO_SELECCIONADO>
    ```
 3. Resolver `<TEMPLATE_ROOT>` como `<TEMPLATE_REPO_ROOT>/<SUBDIRECTORIO_SELECCIONADO>` y analizar tanto el árbol del repositorio como el subdirectorio real.
-4. Registrar dominio, URL, rama, subdirectorio y commit utilizado. Todos los archivos y estructuras generados deben basarse con un 100% de fidelidad en `<TEMPLATE_ROOT>`. No inventar nombres de carpetas, de subflows ni de convenciones. No buscar archivos en otros workspaces o rutas fuera del clon de la plantilla seleccionada.
+4. Registrar dominio, URL, rama, subdirectorio y el commit que devuelve el `HEAD` de la rama. La plantilla se resuelve por **repositorio y rama**, no por commit fijo: el clon se hace siempre sobre la rama y se usa su `HEAD` actual, de modo que una mejora publicada en la plantilla aplique sin editar el contrato. El commit se registra como evidencia de con qué versión se generó, no como entrada del contrato. Todos los archivos y estructuras generados deben basarse con un 100% de fidelidad en `<TEMPLATE_ROOT>`. No inventar nombres de carpetas, de subflows ni de convenciones. No buscar archivos en otros workspaces o rutas fuera del clon de la plantilla seleccionada.
 5. Si el comando de verificación no encuentra el subdirectorio seleccionado, declarar **BLOQUEO** y solicitar que se publique la plantilla en esa rama. No sustituirla automáticamente por la plantilla histórica de IBS, HUB u ORQ ni por archivos de otra rama.
 
 ## Repositorio técnico complementario

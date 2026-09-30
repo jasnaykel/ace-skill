@@ -1,0 +1,284 @@
+# Contrato canonico de ejemplo — Piloto
+#
+# Derivado de `147_BUS_listado_cobranza_libre` (SCI + ETI + DL1071RI.cpy).
+# Sirve como referencia de nombres y como caso de prueba del validador.
+# No sustituye al contrato real de cada servicio.
+
+contrato: "1.0"
+proyecto: banbif
+
+componente:
+  tipo: atomico
+  dominio: IBS
+  nombre_tecnico: BUS_CPS_ProductCollectionList_Corporate_Retrieve
+  nombre_servicio: CPS_ProColLis_Corp_Retr_B
+  nombre_funcional: Listado de Cobranza Libre
+  requerimiento: "147"
+  capa: B
+  producto: Cobranza Libre
+  linea_producto: Cash Management
+
+plantilla:
+  tipo: ace-bus-rest
+  url: https://github.com/Karinadr/plantillas-AI.git
+  rama: IBS
+  subdirectorio: app213-payexe-prorev-core-upda-s-ops-ace
+  commit: d94d087a86fad68dc7c11b12abde43dbefef79a5
+
+exposicion:
+  protocolo: REST
+  base_path: /v1.0/onprem/b/productcollectionlist
+  seguridad_externa: mtls
+  operaciones:
+    - id: retrieve_collections_free_corporate
+      nombre: RetrieveCPSDProductCollectionListCorporate
+      metodo: POST
+      path: /retrieve
+      descripcion: Obtiene los productos de Cobranza Libre de un Cliente Persona Juridica.
+      timeout_cliente_s: 25
+      timeout_backend_s: 16
+
+headers:
+  request:
+    - nombre: Content-Type
+      tipo: string
+      obligatorio: true
+      formato: "application/json"
+      origen: SCI:DatosEntrada:Headers REQUEST
+    - nombre: Time-Stamp
+      tipo: string
+      longitud: 24
+      obligatorio: true
+      formato: '^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d:[0-5]\d\.\d{3}Z$'
+      origen: SCI:DatosEntrada:Headers REQUEST
+    - nombre: Bif-Correlation-Id
+      tipo: string
+      longitud: 36
+      obligatorio: true
+      formato: uuid
+      propagacion_backend: VTRX
+      origen: SCI:DatosEntrada:Headers REQUEST
+    - nombre: Bif-Consumer-Id
+      tipo: string
+      longitud: 6
+      obligatorio: true
+      formato: '^APP\d{3}$'
+      propagacion_backend: VCANAL
+      origen: SCI:DatosEntrada:Headers REQUEST
+    - nombre: Bif-Mdw-Id
+      tipo: string
+      longitud: 6
+      obligatorio: true
+      formato: '^APP\d{3}$'
+      origen: SCI:DatosEntrada:Headers REQUEST
+  response:
+    - nombre: Content-Type
+      valor: application/json;charset=utf-8
+    - nombre: Bif-Request-Id
+      generado_por: servicio
+    - nombre: Bif-Correlation-Id
+      origen: backend.VTRX
+
+request:
+  body:
+    nombre_raiz: RetrieveCPSDProductCollectionListCorporate
+    campos:
+      - nombre: ServiceType
+        ruta: RetrieveCPSDProductCollectionListCorporate.ServiceType
+        tipo: string
+        longitud: 6
+        obligatorio: true
+        formato: "[a-zA-Z0-9]{6}"
+        constante: CSH012
+        backend:
+          campo: VSERVICIO
+          transformacion: ninguna
+        origen: SCI:DatosEntrada:Body REQUEST
+      - nombre: CustomerReference
+        ruta: RetrieveCPSDProductCollectionListCorporate.CustomerReference
+        tipo: string
+        longitud: 9
+        obligatorio: true
+        formato: "[0-9]{1,9}"
+        backend:
+          campo: ICODIBS
+          transformacion: completar_con_ceros_izquierda_9
+        origen: SCI:DatosEntrada:Body REQUEST
+      - nombre: NumberOfPage
+        ruta: RetrieveCPSDProductCollectionListCorporate.NumberOfPage
+        tipo: string
+        longitud: 3
+        obligatorio: true
+        formato: "[1-9]{1,3}"
+        backend:
+          campo: INUMNROPAG
+          transformacion: completar_con_ceros_izquierda_3
+        origen: SCI:DatosEntrada:Body REQUEST
+      - nombre: NumeroRegistrosPorPagina
+        expuesto: false
+        valor_configurado: CT-001
+        tipo: string
+        longitud: 3
+        backend:
+          campo: INUMREGPAG
+        origen: ETI:Configuracion
+
+response:
+  body:
+    nombre_raiz: RetrieveCPSDProductCollectionListCorporateResponse
+    campos:
+      - nombre: CustomerReference
+        tipo: string
+        longitud: 9
+        obligatorio: true
+        backend:
+          campo: OCODIBS
+        origen: SCI:DatosSalida:Body RESPONSE
+      - nombre: MorePagesFlag
+        tipo: boolean
+        obligatorio: true
+        backend:
+          campo: OEXISTSIGPAG
+          transformacion: "1=true, 0=false"
+      - nombre: NextPage
+        tipo: string
+        longitud: 3
+        obligatorio: true
+        backend:
+          campo: ONUMSIGPAG
+      - nombre: CollectionsFreeList
+        tipo: array
+        max_items: 40
+        obligatorio: true
+        backend:
+          grupo: LISTADOCOBRANZARSP
+        items:
+          - nombre: PartyIdentification
+            tipo: string
+            longitud: 9
+            backend_campo: OCODCLI
+          - nombre: PartyName
+            tipo: string
+            longitud: 45
+            backend_campo: ONOMCLI
+          - nombre: StartDate
+            tipo: string
+            formato: date
+            backend_campo: OFECAPER
+            transformacion: yyyyMMdd_a_yyyy-MM-dd
+          - nombre: Currency
+            tipo: string
+            longitud: 3
+            backend_campo: OMONEDA
+
+backend:
+  tipo: IBS_RPG
+  conector: standard-centralizedconnector
+  programa_resolutor: IN2100RI
+  programa: DL1071RI
+  timeout_s: 16
+  copybook:
+    ruta: app213-cps-procollis-corp-retr-b-ops-ace/src/v1.0/service/CPS_ProColLis_Corp_Retr_B/DL1071RI.cpy
+    request: DL1071RI
+    response: DL1071RIRSP
+    error: ELEERR
+    xsd_generado: DL1071RI.xsd
+    yaml_control: DL1071RI.yaml
+
+artefactos_backend:
+  copybook:
+    ruta: DL1071RI.cpy
+    funcion: fuente_fisica
+  dfdl_xsd:
+    ruta: DL1071RI.xsd
+    funcion: modelo_dfdl
+  control_length:
+    ruta: DL1071RI.yaml
+    funcion: definicion_ctrllengthcpy
+    nota: >-
+      Es lo que consume CTRLLENGTHCPY.filenamePattern en el WDO. El .xsd es el
+      modelo DFDL y no sustituye a este archivo.
+
+dfdl:
+  script: scripts/generate_cobol_dfdl_xsd.py
+  xsd_esperado: DL1071RI.xsd
+  opciones:
+    codepage: ISO-8859-1
+    endian: Little
+    string_padding: "%SP;"
+    number_padding: "0"
+    preserve_case: true
+  cardinalidad:
+    LISTADOCOBRANZARSP:
+      tipo: fixed
+      min: 40
+      max: 40
+
+reglas:
+  transformaciones:
+    - id: completar_cliente
+      origen: CustomerReference
+      destino: ICODIBS
+      expresion: completar_con_ceros_izquierda_9
+    - id: convertir_fecha
+      origen: OFECAPER
+      destino: StartDate
+      expresion: yyyyMMdd_a_yyyy-MM-dd
+  negocio:
+    - id: pagina_mayor_cero
+      expresion: NumberOfPage > 0
+      origen: SCI:DatosEntrada:Body REQUEST
+
+configuracion:
+  codigo_servicio: CSH012
+  constantes:
+    CT-001: "040"
+  destinos:
+    health:
+      metodo: GET
+      timeout_s: 16
+      url_por_ambiente:
+        DEV: "${CENTRAL_CONNECTOR_HEALTH_DEV}"
+        QAS: "${CENTRAL_CONNECTOR_HEALTH_QAS}"
+        PRD: "${CENTRAL_CONNECTOR_HEALTH_PRD}"
+    main:
+      metodo: POST
+      timeout_s: 16
+      programa: IN2100RI
+      pcml: DL1071RI
+      url_por_ambiente:
+        DEV: "${CENTRAL_CONNECTOR_MAIN_DEV}"
+        QAS: "${CENTRAL_CONNECTOR_MAIN_QAS}"
+        PRD: "${CENTRAL_CONNECTOR_MAIN_PRD}"
+  wdo:
+    input_directory: /home/aceuser/ace-server/run/CPS_ProColLis_Corp_Retr_B
+    filename_pattern: DL1071RI.yaml
+    schema_response: DL1071RIRSP
+    schema_error: ELEERR
+    pcml: DL1071RI
+
+seguridad:
+  canales: [mtls, onprem]
+  autorizacion:
+    tipo: ldap
+    grupo: CPS_PROCOLLIS_CORP_RETR
+    grupos_por_ambiente:
+      DEV: "${LDAP_GROUP_DEV}"
+      QAS: "${LDAP_GROUP_QAS}"
+      PRD: "${LDAP_GROUP_PRD}"
+
+errores:
+  - codigo: "9701"
+    significado: Codigo del cliente errado
+    http: 202
+    tipo: negocio
+    origen: SCI:Errores
+  - codigo: "3814"
+    significado: Codigo cliente no existe
+    http: 202
+    tipo: negocio
+    origen: SCI:Errores
+
+decisiones:
+  manuales: []
+  justificaciones: []

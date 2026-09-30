@@ -140,6 +140,27 @@ ETI_162_BUS_Pagar_Recaudacion_HUB.md
 
 Si falta el SCI o el ETI, la generacion debe detenerse.
 
+### 5.1 El copybook es opcional
+
+El SCI y el ETI siempre son obligatorios. El **copybook no**.
+
+El copybook es la descripcion de la trama que un servicio envia o recibe de un
+programa COBOL o RPG. No todos los servicios lo usan.
+
+| Tipo de servicio | Copybook |
+|---|---|
+| Servicio atomico que consume una trama IBS con programa RPG | **Si, obligatorio** |
+| Servicio orquestador que coordina otros servicios | **No aplica** |
+| Servicio que solo consume o expone REST | **No aplica** |
+
+Un servicio sin copybook **no esta incompleto**. En ese caso la skill no crea la
+capa DFDL: no genera `IBMdefined/`, `importFiles/`, el `.xsd` del PCML ni el
+`.yaml` de control de longitud.
+
+Inventar un copybook para "completar" un servicio que no lo tiene es un error,
+no una mejora. Si el ETI indica que hay trama COBOL y el copybook no esta
+disponible, la respuesta correcta es `BLOQUEO`.
+
 ---
 
 ## 6. Como se elige la plantilla
@@ -194,6 +215,32 @@ Plantilla: app213-payinfass-agrdeblis-retr-b-ops-ace
 Un orquestador normalmente coordina uno o mas servicios atomicos. Por ejemplo, puede validar una solicitud, consultar un servicio IBS, decidir una ruta e invocar despues un servicio HUB.
 
 Si el encabezado no existe o es ambiguo, la skill debe informar `BLOQUEO` y solicitar que se corrija el ETI.
+
+### 6.1 La plantilla se resuelve por rama, no por commit
+
+La skill clona la plantilla usando el **repositorio y la rama** del dominio, y
+trabaja sobre la version mas reciente de esa rama.
+
+```text
+Rama IBS  ->  rama IBS  ->  app213-payexe-prorev-core-upda-s-ops-ace
+Rama HUB  ->  rama HUB  ->  app213-payexe-prorev-hub-upda-s-ops-ace
+Rama ORQ  ->  rama ORQ  ->  app213-payinfass-agrdeblis-retr-b-ops-ace
+```
+
+Por que por rama y no por commit:
+
+| Opcion | Comportamiento |
+|---|---|
+| Commit fijo | La plantilla queda congelada. Una mejora publicada despues no llega al servicio. |
+| Rama | La plantilla se actualiza sola. La mejora publicada aplica sin tocar el contrato ni el prompt. |
+
+El commit no se borra del reporte: se registra como evidencia de **con que
+version se genero** el servicio. Es informacion de salida, no una entrada que
+bloquee futuras generaciones.
+
+Si el subdirectorio de la plantilla no existe en la rama indicada, la skill
+informa `BLOQUEO`. Nunca debe sustituirse por la plantilla de otra rama ni por
+una copia local antigua.
 
 ---
 
@@ -640,3 +687,112 @@ Para compartir la skill con otra persona o equipo:
 5. Pide una prueba generating un servicio pequeno.
 
 No se deben compartir certificados, llaves privadas ni credenciales junto con la skill.
+
+---
+
+## 19. Capa de contratos: del SCI y ETI al contrato
+
+Ademas del modo directo (la IA lee el SCI y el ETI y genera), existe una **capa
+de preparacion**: un archivo `contrato.yaml` que concentra los datos del servicio
+y se valida antes de generar.
+
+Esto no reemplaza al modo directo. El modo directo sigue siendo el predeterminado.
+
+### 19.1 Que aporta
+
+El contrato sirve para tres cosas:
+
+1. **Validar antes de generar.** Detecta campos sin mapeo, operaciones duplicadas
+   o copybook faltante, sin escribir una sola linea de ACE.
+2. **Producir la documentacion.** Genera `openapi.yaml` y `request.schema.json`
+   consistentes con el ETI.
+3. **Evitar que la IA invente.** La IA recibe datos ya estructurados en vez de
+   deducirlos del texto libre.
+
+### 19.2 Flujo de trabajo
+
+```powershell
+# 1. Extraer un contrato minimo desde los documentos (no inventa datos)
+python C:\Users\jcprieto\.agents\skills\ace-skill\scripts\extraer_contrato.py `
+  SCI.md ETI.md -o contrato.yaml
+
+# 2. Completar a mano lo que falte: request, response, mapeos, copybook
+
+# 3. Validar
+python C:\Users\jcprieto\.agents\skills\ace-skill\scripts\validar_contrato.py contrato.yaml
+
+# 4. Si el servicio consume trama COBOL, generar el XSD desde el copybook
+python C:\Users\jcprieto\.agents\skills\ace-skill\scripts\generate_cobol_dfdl_xsd.py `
+  RE0055RI.cpy RE0055RI.xsd
+
+# 5. Generar el paquete para la IA
+python C:\Users\jcprieto\.agents\skills\ace-skill\scripts\generar_openapi.py `
+  contrato.yaml -d paquete\
+```
+
+El paso 4 se omite cuando el servicio no usa copybook.
+
+### 19.3 Archivos que produce
+
+Todos en la carpeta `paquete\`:
+
+| Archivo | Para que sirve |
+|---|---|
+| `openapi.yaml` | Contrato HTTP del servicio |
+| `request.schema.json` | Validacion de entrada del REST API |
+| `parametros.json` | Nombres que la IA ya usa, sin reescribir la logica |
+| `artefactos.yaml` | Que se copia, que se parametriza y que se genera |
+| `contrato.resuelto.yaml` | Contrato con el perfil del proyecto aplicado |
+
+### 19.4 Codigos de salida
+
+Los scripts usan los mismos codigos:
+
+```text
+0 correcto  ·  1 advertencias  ·  2 bloqueante  ·  3 error tecnico
+```
+
+Un `2` significa que no se debe generar. Debes corregir el contrato o los
+documentos y volver a ejecutar.
+
+### 19.5 Ejemplo de solicitud
+
+```text
+Usando ace-skill, crea el contrato del servicio 158 a partir de:
+
+SCI: D:\ruta\SCI_SRV_Orquestador Pagar Recaudacion.md
+ETI: D:\ruta\README.md
+
+Guarda el contrato y el paquete en:
+D:\ruta\contratos\158_BUS_orquestador_pagar_recaudacion
+
+No generes el desarrollo del servicio, solo la parte documental.
+```
+
+### 19.6 Validaciones disponibles
+
+| Script | Que comprueba |
+|---|---|
+| `validar_contrato.py` | Esquema, mapeos, copybook, operaciones duplicadas |
+| `generate_cobol_dfdl_xsd.py` | Genera el XSD desde el copybook (solo con copybook) |
+| `generar_openapi.py` | Produce el paquete documental |
+| `gate_estructural.py` | ESQL, XML, referencias `esql://routine`, residuos de plantilla |
+| `verify_scaffold.py` | OpenAPI, `BROKER SCHEMA`, `restapi.descriptor`, codificacion |
+| `validate_readme_eti.py` | README tecnico global del servicio |
+
+El gate estructural y el verificador de scaffolding se ejecutan **despues de
+generar el proyecto**, no sobre el contrato.
+
+### 19.7 Precedencia cuando las fuentes no coinciden
+
+```text
+copybook           > contrato     estructura fisica DFDL (si existe)
+contrato aprobado  > perfil       datos del servicio
+perfil del proyecto> plantilla    convenciones comunes
+plantilla          > IA           estructura de archivos
+SCI / ETI          = trazabilidad
+```
+
+Si el contrato contradice al copybook, la generacion se detiene. Si el SCI y el
+ETI se contradicen entre si, tambien se detiene: es una inconsistencia de
+documentacion y se corrige en el origen.

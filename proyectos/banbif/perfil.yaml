@@ -1,0 +1,101 @@
+# Perfil de proyecto — BanBif / IBS
+#
+# Lo que NO cambia por servicio vive aqui. El contrato solo declara lo propio
+# del componente. La plantilla se elige por `proyecto + tipo_componente +
+# tipo_backend`, nunca por similitud de nombre.
+
+proyecto: banbif
+framework: ibm-ace-12
+ambientes: [DEV, QAS, PRD]
+
+# La plantilla se resuelve por REPOSITORIO + RAMA. El commit no se fija: se toma
+# el HEAD de la rama en el momento de generar, para que una mejora de la
+# plantilla aplique sin tocar el contrato.
+plantillas:
+  ace-bus-rest:
+    url: https://github.com/Karinadr/plantillas-AI.git
+    rama: IBS
+    subdirectorio: app213-payexe-prorev-core-upda-s-ops-ace
+
+  ace-bus-rest-hub:
+    url: https://github.com/Karinadr/plantillas-AI.git
+    rama: HUB
+    subdirectorio: app213-payexe-prorev-hub-upda-s-ops-ace
+
+  ace-orquestador:
+    url: https://github.com/Karinadr/plantillas-AI.git
+    rama: ORQ
+    subdirectorio: app213-payinfass-agrdeblis-retr-b-ops-ace
+
+  ach:
+    url: <definen-al-dar-de-alta>
+    rama: main
+    subdirectorio: <definen-al-dar-de-alta>
+
+convenciones:
+  prefijo_aplicacion: APP_
+  prefijo_modulo: MF_
+  prefijo_policy: PLP_
+  ambientes_policy: [DEV, QAS, PRD]
+  wdo_prefijo: wdo-
+  sufijo_wdo: .txt
+
+seguridad_default:
+  canales: [mtls, onprem]
+  autorizacion:
+    tipo: ldap
+
+# Artefactos que el contrato NO debe tocar. Un servicio nuevo no los reescribe:
+# se parametrizan por prefijo desde el servicio, no se regeneran.
+ace:
+  artefactos_protegidos:
+    - LIB_CORE_COMMON
+    - LIB_CORE_CONTROL
+    - LIB_SMF_UTIL
+  validaciones:
+    requiere_project: true
+    requiere_xmi: true
+    requiere_dfdl: true
+    una_sola_stanza_servers: true
+
+# Los tres archivos del backend no son intercambiables. Confundirlos produce
+# un XSD que no valida o un WDO que apunta a un archivo inexistente en runtime.
+artefactos_backend:
+  copybook:
+    extension: .cpy
+    funcion: fuente_fisica
+    generado_por: documentacion_del_cliente
+  dfdl_xsd:
+    extension: .xsd
+    funcion: modelo_dfdl
+    generado_por: scripts/generate_cobol_dfdl_xsd.py
+  control_length:
+    extension: .yaml
+    funcion: definicion_ctrllengthcpy
+    nota: >-
+      Es lo que consume `CTRLLENGTHCPY.filenamePattern` segun el WDO de la
+      plantilla. NO se sustituye por el .xsd. Confirmar leyendo el WDO y el
+      subflow de la plantilla, no de memoria.
+
+dfdl:
+  script: scripts/generate_cobol_dfdl_xsd.py
+  opciones_por_defecto:
+    codepage: ISO-8859-1
+    endian: Little
+    string_padding: "%SP;"
+    number_padding: "0"
+    preserve_case: true
+
+# Los placeholders de entorno van como `${VAR}`. El contrato no lleva URLs
+# internas reales ni credenciales: eso vive en el ambiente de despliegue.
+politicas:
+  destinos_requeridos: [health, main]
+  placeholders:
+    DEV: "${CENTRAL_CONNECTOR_MAIN_DEV}"
+    QAS: "${CENTRAL_CONNECTOR_MAIN_QAS}"
+    PRD: "${CENTRAL_CONNECTOR_MAIN_PRD}"
+
+timeouts:
+  backend_s: 16
+  servidor_s: 17
+  cliente_s: 25
